@@ -1,0 +1,54 @@
+# AnimatedBackground
+
+AnimatedBackground permet de créer des vidéos personnalisées à diffuser en boucle sur un écran ou un vidéoprojecteur pendant un événement. Choisissez une ambiance, adaptez les textes et téléchargez votre animation en MP4.
+
+La version **V0.1** propose l’ambiance **Rose poudré** pour les anniversaires. D’autres modèles, notamment pour les mariages, sont prévus.
+
+## Personnalisation
+
+- Prénom, âge et deux lignes de message indépendantes.
+- Décor d’encre rose animé, chiffres en relief et pépites d’or activables.
+- Durée de 30 secondes par défaut, réglable jusqu’à 3 minutes.
+- Aperçu animé avec lecture en boucle et retour au début.
+- Génération avec suivi de progression, annulation et téléchargement.
+
+Les vidéos sont exportées en **MP4 Full HD (1920 × 1080), à 30 images par seconde, sans audio**. L’entrée et la sortie sont conçues pour une diffusion continue.
+
+La génération s’effectue sur votre machine, sans service externe. Vos derniers réglages sont conservés dans le navigateur.
+
+## Lancement avec Docker
+
+Prérequis : Docker Desktop démarré et environ 4 Go de mémoire disponibles. Une connexion Internet est nécessaire pour la première construction de l’image.
+
+À la racine du projet :
+
+```bash
+docker compose up --build -d
+```
+
+Ouvrez [localhost:3000](http://localhost:3000/), personnalisez votre vidéo, puis cliquez sur **Générer la vidéo**. Une fois le rendu terminé, téléchargez le fichier depuis l’interface.
+
+Pour arrêter l’application :
+
+```bash
+docker compose down
+```
+
+Les exports restent dans le volume Docker. Téléchargez vos vidéos avant de redémarrer l’application : les liens de téléchargement ne sont pas conservés entre les sessions.
+
+## Développement
+
+Le projet utilise React, TypeScript et Remotion. Pour travailler sans Docker, installez Node.js 22+, ffprobe et Chrome/Chromium, puis renseignez `CHROME_PATH` si nécessaire.
+
+```bash
+npm ci
+npm run dev
+```
+
+L’interface est accessible sur [localhost:5173](http://localhost:5173/). Les commandes `npm test`, `npm run typecheck` et `npm run build` permettent de vérifier le projet.
+
+## Licences
+
+Le moteur vidéo utilise [Remotion](https://www.remotion.dev/docs/license). Les licences des polices sont fournies dans `public/fonts/`.
+
+Réalisé avec ❤️ par [Arthur Mondon](https://mondon.pro/).
