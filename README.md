@@ -8,7 +8,7 @@ La version **V0.1** propose l’ambiance **Rose poudré** pour les anniversaires
 
 - Prénom, âge et deux lignes de message indépendantes.
 - Décor d’encre rose animé, chiffres en relief et pépites d’or activables.
-- Durée de 30 secondes par défaut, réglable jusqu’à 3 minutes.
+- Durée de 45 secondes par défaut, réglable jusqu’à 3 minutes.
 - Aperçu animé avec lecture en boucle et retour au début.
 - Génération avec suivi de progression, annulation et téléchargement.
 

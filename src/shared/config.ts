@@ -10,7 +10,7 @@ export const inputSchema = z.object({
   durationSeconds:z.number().int().min(30).max(180)
 });
 export type BirthdayInput=z.infer<typeof inputSchema>;
-export const defaults:BirthdayInput={templateId:'rose-poudre',firstName:'Caroline',age:50,showGoldNuggets:true,messageLine1:'Joyeux',messageLine2:'Anniversaire',durationSeconds:30};
+export const defaults:BirthdayInput={templateId:'rose-poudre',firstName:'Prénom',age:50,showGoldNuggets:true,messageLine1:'Joyeux',messageLine2:'Anniversaire',durationSeconds:45};
 export const VIDEO={width:1920,height:1080,fps:30} as const;
 export const templates=[{id:'rose-poudre',name:'Rose poudré',description:'Aquarelle, ivoire & or rose'}] as const;
 export function filename(p:BirthdayInput){const name=p.firstName.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')||'invite';return `anniversaire_${name}_${p.age}ans_${p.templateId}_${p.durationSeconds}s.mp4`;}
