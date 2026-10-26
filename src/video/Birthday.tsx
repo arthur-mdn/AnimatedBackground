@@ -6,9 +6,11 @@ import {Fonts} from './Fonts';
 import {RoseInk} from './RoseInk';
 import {TypingText} from './TypingText';
 import {GlitterAge} from './GlitterAge';
+import {Nocturne} from './Nocturne';
 import {HeartOrnament} from './HeartOrnament';
 const ink='#CF7E7F',gold='#c19a5b';
-export function Birthday(props:BirthdayInput){
+export function Birthday(props:BirthdayInput){return props.templateId==='bleu-minuit'?<Nocturne {...props}/>:<RoseBirthday {...props}/>;}
+function RoseBirthday(props:BirthdayInput){
  const frame=useCurrentFrame(),{durationInFrames:total}=useVideoConfig();
  const [handle]=useState(()=>delayRender('Chargement des polices locales'));
  useEffect(()=>{Promise.all([document.fonts.load('210px Celebration'),document.fonts.load('700 370px Portrait')]).then(()=>continueRender(handle)).catch(()=>continueRender(handle));},[handle]);
