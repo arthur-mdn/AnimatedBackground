@@ -42,5 +42,5 @@ export function filename(p:BirthdayInput){
  return `anniversaire_${safeName(p.firstName)}_${p.age}ans_${p.templateId==='rose-poudre'?'aquarelle':'nocturne'}_${p.durationSeconds}s.mp4`;
 }
 
-export type Job={id:string;status:'preparing'|'rendering'|'verifying'|'done'|'cancelling'|'cancelled'|'error';progress:number;startedAt:number;filename:string;error?:string};
+export type Job={id:string;status:'preparing'|'rendering'|'verifying'|'done'|'cancelling'|'cancelled'|'error';progress:number;startedAt:number;filename:string;renderedFrames?:number;totalFrames?:number;estimatedRemainingSeconds?:number|null;updatedAt?:number;finishedAt?:number;error?:string};
 export const isActive=(job:Job)=>['preparing','rendering','verifying','cancelling'].includes(job.status);

@@ -1,5 +1,5 @@
 import {watercolorRGB,useWatercolorBase,useWatercolorColor} from './WatercolorPalette';
-import {useCurrentFrame,useVideoConfig} from 'remotion';
+import {Img,staticFile,useCurrentFrame,useVideoConfig} from 'remotion';
 import {smooth} from './timing';
 import {GoldNuggets} from './GoldNuggets';
 
@@ -51,13 +51,13 @@ function InkCorner({id,spread,water,showGoldNuggets,opposite=false}:{id:string;s
    <stop offset=".85" stopColor={color('#de929a')} stopOpacity=".42"/><stop offset="1" stopColor={color('#f1b8b9')} stopOpacity=".12"/>
   </radialGradient>
   <filter id={`${id}-bleed`} x="-20%" y="-20%" width="140%" height="140%" colorInterpolationFilters="sRGB">
-   <feTurbulence type="fractalNoise" baseFrequency=".018 .022" numOctaves={3} seed={opposite?47:23} result="grain"/>
+   <feImage href={staticFile(`textures/ink-noise-${opposite?47:23}.png`)} x="-350" y="-350" width="1600" height="1600" preserveAspectRatio="none" result="grain"/>
    <feOffset in="grain" dx={water.x} dy={water.y} result="flow"/>
    <feDisplacementMap in="SourceGraphic" in2="flow" scale={42} xChannelSelector="R" yChannelSelector="G"/>
    <feGaussianBlur stdDeviation=".55"/>
   </filter>
   <filter id={`${id}-texture`} x="0" y="0" width="100%" height="100%" colorInterpolationFilters="sRGB">
-   <feTurbulence type="fractalNoise" baseFrequency=".035" numOctaves={4} seed={opposite?11:31} result="pigment-grain"/>
+   <feImage href={staticFile(`textures/ink-noise-${opposite?11:31}.png`)} x="-350" y="-350" width="1600" height="1600" preserveAspectRatio="none" result="pigment-grain"/>
    <feOffset in="pigment-grain" dx={water.x} dy={water.y}/>
    <feColorMatrix type="matrix" values={`0 0 0 0 ${red}  0 0 0 0 ${green}  0 0 0 0 ${blue}  0 0 0 .48 -.13`}/>
   </filter>
@@ -87,8 +87,8 @@ export function RoseInk({showGoldNuggets}:{showGoldNuggets:boolean}){
  const frame=useCurrentFrame(),{durationInFrames}=useVideoConfig();
  const spread=inkSpread(frame,durationInFrames);
  const water=inkWaterMotion(frame,durationInFrames);
- return <svg width="1920" height="1080" viewBox="0 0 1920 1080" style={{position:'absolute',inset:0}} aria-hidden="true">
+ return <>{[23,47,11,31].map(seed=><Img key={seed} src={staticFile(`textures/ink-noise-${seed}.png`)} style={{display:'none'}}/>) }<svg width="1920" height="1080" viewBox="0 0 1920 1080" style={{position:'absolute',inset:0}} aria-hidden="true">
   <InkCorner id="ink-top" spread={spread} water={water} showGoldNuggets={showGoldNuggets}/>
   <InkCorner id="ink-bottom" spread={spread} water={water} showGoldNuggets={showGoldNuggets} opposite/>
- </svg>;
+ </svg></>;
 }

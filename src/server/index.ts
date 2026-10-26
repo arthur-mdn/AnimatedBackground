@@ -31,7 +31,7 @@ app.post('/api/jobs',async(req,res)=>{
  const worker=fork(resolve('src/server/worker.ts'),[],{execArgv:['--import','tsx'],detached:true,env:{...process.env,RENDER_INPUT:JSON.stringify(parsed.data),RENDER_OUTPUT:path},stdio:['ignore','pipe','pipe','ipc']});
  child=worker;
  let lastError='';worker.stderr?.on('data',b=>{lastError=(lastError+String(b)).slice(-2000);});
- worker.on('message',(m:Partial<Job>)=>{if(job.status==='cancelling')return;if(m.status)job.status=m.status;if(typeof m.progress==='number')job.progress=m.progress;if(m.error)job.error=m.error;});
+ worker.on('message',(m:Partial<Job>)=>{if(job.status==='cancelling')return;if(m.status)job.status=m.status;if(typeof m.progress==='number')job.progress=Math.max(job.progress,m.progress);if(typeof m.renderedFrames==='number')job.renderedFrames=m.renderedFrames;if(typeof m.totalFrames==='number')job.totalFrames=m.totalFrames;if(m.estimatedRemainingSeconds!==undefined)job.estimatedRemainingSeconds=m.estimatedRemainingSeconds;if(typeof m.updatedAt==='number')job.updatedAt=m.updatedAt;if(typeof m.finishedAt==='number')job.finishedAt=m.finishedAt;if(m.error)job.error=m.error;});
  worker.on('error',e=>{job.status='error';job.error=e.message;});
  worker.on('exit',async()=>{
   if(job.status==='cancelling')job.status='cancelled';
