@@ -33,7 +33,7 @@ export const inputSchema = z.object({
 export type BirthdayInput=z.infer<typeof inputSchema>;
 export const defaults:BirthdayInput={templateId:'rose-poudre',firstName:'Prénom',age:50,brideName:'Prénom',groomName:'Prénom',reverseNames:false,weddingDate:'',weddingMessage:'',showGoldNuggets:true,ornament:'heart',watercolorColor:'#CF7E7F',nocturnePalette:'bleu-nuit',nocturneColor:'#20366F',messageLine1:'Joyeux',messageLine2:'Anniversaire',durationSeconds:45};
 export const VIDEO={width:1920,height:1080,fps:30} as const;
-export const templates=[{id:'rose-poudre',name:'Aquarelle',description:'Encre, éclats & couleurs au choix'},{id:'bleu-minuit',name:'Nocturne',description:'Étoiles, lumières & notes de musique'},{id:'jardin-mariage',name:'Jardin — Mariage',description:'Feuillage animé & colombe'}] as const;
+export const templates=[{id:'rose-poudre',category:'birthday',name:'Aquarelle',description:'Encre, éclats & couleurs au choix'},{id:'bleu-minuit',category:'birthday',name:'Nocturne',description:'Étoiles, lumières & notes de musique'},{id:'jardin-mariage',category:'wedding',name:'Jardin',description:'Feuillage animé & colombe'}] as const;
 function safeName(value:string){return value.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')||'invite';}
 export function filename(p:BirthdayInput){
  if(p.templateId==='jardin-mariage')return `mariage_${weddingNames(p).map(safeName).join('-')}_${p.weddingDate}_${p.durationSeconds}s.mp4`;
