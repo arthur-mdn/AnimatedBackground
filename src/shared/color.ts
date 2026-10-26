@@ -8,3 +8,7 @@ export function cssRGB(tone:string){
  const [h,s,l]=tone.match(/[\d.]+/g)!.map(Number),sat=s/100,light=l/100,a=sat*Math.min(light,1-light);
  return [0,8,4].map(n=>{const k=(n+h/30)%12;return light-a*Math.max(-1,Math.min(k-3,9-k,1));});
 }
+export function mixColors(from:string,to:string,amount:number){
+ const a=cssRGB(from),b=cssRGB(to),t=Math.min(1,Math.max(0,amount));
+ return `rgb(${a.map((value,i)=>Math.round((value+(b[i]-value)*t)*255)).join(' ')})`;
+}
