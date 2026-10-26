@@ -1,3 +1,4 @@
+import {useGardenColor} from './GardenPalette';
 import {smooth} from './timing';
 const random=(n:number)=>{const v=Math.sin(n*127.1+31.7)*43758.5453;return v-Math.floor(v);};
 // Sample the same Bézier curve used by the stem, including its local direction.
@@ -10,12 +11,14 @@ function stemPoint(t:number,bend:number){
  return {x,y,angle:Math.atan2(dy,dx)*180/Math.PI};
 }
 function Leaf({tone}:{tone:number}){
+ const color=useGardenColor();
  return <>
-  <path d="M0 0C-4-16 1-42 18-62C30-37 23-10 0 0Z" fill={`url(#wedding-leaf-${tone})`} stroke="#819a76" strokeWidth=".4"/>
-  <path d="M0 0Q11-29 18-59 M7-23 2-33 M11-36 23-40" fill="none" stroke="#eef1d9" strokeWidth=".75" opacity=".55"/>
+  <path d="M0 0C-4-16 1-42 18-62C30-37 23-10 0 0Z" fill={`url(#wedding-leaf-${tone})`} stroke={color("#819a76")} strokeWidth=".4"/>
+  <path d="M0 0Q11-29 18-59 M7-23 2-33 M11-36 23-40" fill="none" stroke={color("#eef1d9")} strokeWidth=".75" opacity=".55"/>
  </>;
 }
 function Twig({phase,time,index,angle,x,y,scale=1}:{phase:number;time:number;index:number;angle:number;x:number;y:number;scale?:number}){
+ const color=useGardenColor();
  const entrance=smooth((time-index*.16)/2.8);
  const visibility=smooth((time-index*.16)/.9);
  const wind=Math.sin(phase+index*.8)*3.2+Math.sin(phase*2+index)*.8;
@@ -23,7 +26,7 @@ function Twig({phase,time,index,angle,x,y,scale=1}:{phase:number;time:number;ind
  const tip=stemPoint(1,bend),tipReveal=smooth((time-index*.16-.45)/1.8);
  const foldedAngle=[-30,18,32,-22][index];
  return <g opacity={visibility} transform={`translate(${x} ${y}) rotate(${angle+wind+(1-entrance)*foldedAngle}) scale(${scale*(.8+.2*entrance)})`}>
-  <path d={`M-25 5C65 ${-10+bend*.5} 173 ${11+bend} 325 ${-8+bend}`} fill="none" stroke="#7d9772" strokeWidth="2.1" opacity=".55"/>
+  <path d={`M-25 5C65 ${-10+bend*.5} 173 ${11+bend} 325 ${-8+bend}`} fill="none" stroke={color("#7d9772")} strokeWidth="2.1" opacity=".55"/>
   {Array.from({length:9},(_,i)=>{const point=stemPoint(.14+i*.095,bend);return [-1,1].map(side=>{
    const size=(.65+random(index*30+i*2+side)*.4)*(1-i*.035);
    const sway=Math.sin(phase+i*.45+index+side*.3)*4+Math.sin(phase*2+i)*1.2;
@@ -39,9 +42,10 @@ function Twig({phase,time,index,angle,x,y,scale=1}:{phase:number;time:number;ind
 }
 // Without a timeline the model card shows the fully opened foliage.
 export function WeddingFoliage({phase=0,time=Infinity,compact=false}:{phase?:number;time?:number;compact?:boolean}){
+ const color=useGardenColor();
  return <svg viewBox={`0 0 ${compact?1080:1920} 1080`} width="100%" height="100%" preserveAspectRatio="xMidYMid slice" style={{position:'absolute',inset:0}} aria-hidden="true">
  <defs>
- {[['#bbc9a8','#6e916a'],['#d0d9bc','#819e78'],['#a6bd91','#587b57']].map(([light,dark],i)=><linearGradient key={i} id={`wedding-leaf-${i}`} x1="0" y1="0" x2="1" y2=".8"><stop stopColor={light}/><stop offset=".52" stopColor={dark}/><stop offset="1" stopColor="#d8dfc6"/></linearGradient>)}
+ {[['#bbc9a8','#6e916a'],['#d0d9bc','#819e78'],['#a6bd91','#587b57']].map(([light,dark],i)=><linearGradient key={i} id={`wedding-leaf-${i}`} x1="0" y1="0" x2="1" y2=".8"><stop stopColor={color(light)}/><stop offset=".52" stopColor={color(dark)}/><stop offset="1" stopColor={color("#d8dfc6")}/></linearGradient>)}
  <filter id="wedding-leaf-soft" x="-10%" y="-10%" width="120%" height="120%"><feTurbulence type="fractalNoise" baseFrequency=".045" numOctaves="2" seed="18" result="leaf-grain"/><feDisplacementMap in="SourceGraphic" in2="leaf-grain" scale="2.5" xChannelSelector="R" yChannelSelector="G"/><feGaussianBlur stdDeviation=".35"/></filter>
  </defs>
  {[false,true].map((bottom)=><g key={String(bottom)} transform={bottom?`translate(${compact?1080:1920} 1080) rotate(180)`:undefined} opacity=".9" filter="url(#wedding-leaf-soft)">

@@ -1,2 +1,7 @@
 import {WeddingFoliage} from '../video/WeddingFoliage';
-export function WeddingSwatch(){return <span className="swatch wedding-swatch" aria-hidden="true"><WeddingFoliage compact/><span>&amp;</span></span>;}
+import {GardenPalette} from '../video/GardenPalette';
+import {gardenPalette,type GardenPaletteId} from '../shared/garden';
+export function WeddingSwatch({palette='ivoire'}:{palette?:GardenPaletteId}){
+ const colors=gardenPalette(palette);
+ return <GardenPalette palette={palette}><span className="swatch wedding-swatch" style={{background:colors.background}} aria-hidden="true"><WeddingFoliage compact/><span style={{color:colors.secondary}}>&amp;</span></span></GardenPalette>;
+}

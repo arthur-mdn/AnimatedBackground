@@ -1,4 +1,5 @@
 import {z} from 'zod';
+import {gardenPaletteIds} from './garden';
 import {isWeddingDate,weddingNames} from './wedding';
 import {ornamentIds} from './ornaments';
 import {nocturnePaletteIds} from './nocturne';
@@ -11,6 +12,7 @@ export const inputSchema = z.object({
   groomName:oneLine(30,'Le prénom du marié'),
   reverseNames:z.boolean(),
   weddingDate:z.string().max(10),
+  gardenPalette:z.enum(gardenPaletteIds).default('ivoire'),
   weddingMessage:oneLine(100,'La phrase du mariage'),
   showGoldNuggets:z.boolean(),
   ornament:z.enum(ornamentIds),
@@ -31,7 +33,7 @@ export const inputSchema = z.object({
  }
 }).transform(input=>({...input,age:Number.isFinite(input.age)?input.age:50}));
 export type BirthdayInput=z.infer<typeof inputSchema>;
-export const defaults:BirthdayInput={templateId:'rose-poudre',firstName:'Prénom',age:50,brideName:'Prénom',groomName:'Prénom',reverseNames:false,weddingDate:'',weddingMessage:'',showGoldNuggets:true,ornament:'heart',watercolorColor:'#CF7E7F',nocturnePalette:'bleu-nuit',nocturneColor:'#20366F',messageLine1:'Joyeux',messageLine2:'Anniversaire',durationSeconds:45};
+export const defaults:BirthdayInput={templateId:'rose-poudre',firstName:'Prénom',age:50,brideName:'Prénom',groomName:'Prénom',reverseNames:false,weddingDate:'',gardenPalette:'ivoire',weddingMessage:'',showGoldNuggets:true,ornament:'heart',watercolorColor:'#CF7E7F',nocturnePalette:'bleu-nuit',nocturneColor:'#20366F',messageLine1:'Joyeux',messageLine2:'Anniversaire',durationSeconds:45};
 export const VIDEO={width:1920,height:1080,fps:30} as const;
 export const templates=[{id:'rose-poudre',category:'birthday',name:'Aquarelle',description:'Encre, éclats & couleurs au choix'},{id:'bleu-minuit',category:'birthday',name:'Nocturne',description:'Étoiles, lumières & notes de musique'},{id:'jardin-mariage',category:'wedding',name:'Jardin',description:'Feuillage animé & colombe'}] as const;
 function safeName(value:string){return value.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')||'invite';}
