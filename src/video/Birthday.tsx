@@ -28,7 +28,7 @@ function RoseBirthday(props:BirthdayInput){
  <AbsoluteFill style={{background:`radial-gradient(ellipse at 50% 45%, ${color('#fff5ed')} 0%, ${color('#fae7df')} 100%)`}}/>
  <RoseInk showGoldNuggets={props.showGoldNuggets}/>
  <div style={{position:'absolute',inset:36,border:`2px solid ${gold}`,opacity:.85}}/>
- {line1&&<div style={{position:'absolute',top:line2?131:205,left:100,right:100,textAlign:'center',color:color('#302c29'),...style(APPEARANCE.line1.start,APPEARANCE.line1.fade)}}>
+ {line1&&<div style={{position:'absolute',top:line2?131:205,left:100,right:100,textAlign:'center',color:color('#987C7E'),...style(APPEARANCE.line1.start,APPEARANCE.line1.fade)}}>
  <TypingText text={line1.toLocaleUpperCase('fr-FR')} fontSize={76} fontFamily="Arial, Helvetica, sans-serif" fontWeight={300} letterSpacing={15} singleLine maxWidth={1500} frame={frame} total={total} start={APPEARANCE.line1.start} length={APPEARANCE.line1.writing}/>
  </div>}
  {line2&&<div style={{position:'absolute',top:line1?175:151,left:100,right:100,textAlign:'center',...style(APPEARANCE.line2.start,APPEARANCE.line2.fade)}}>
