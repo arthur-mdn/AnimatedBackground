@@ -6,23 +6,23 @@ export function JobStatus({job,pending,now,onCancel}:{job:Job|null;pending:boole
  if(pending)return <div className="job job-pending" role="status"><SpinnerIcon/><span>Démarrage de la génération…</span></div>;
  if(!job)return null;
  const active=isActive(job),done=job.status==='done',rendering=job.status==='rendering';
- const encoding=rendering&&!!job.totalFrames&&job.renderedFrames===job.totalFrames;
+ const encoding=rendering&&job.renderStage==='assembly';
  const percent=Math.min(done?100:99.9,Math.floor(job.progress*1000)/10);
  const elapsed=Math.max(0,((job.finishedAt??now)-job.startedAt)/1000);
  const age=job.updatedAt?(now-job.updatedAt)/1000:0;
  const remaining=job.estimatedRemainingSeconds==null||age>15?null:Math.max(1,job.estimatedRemainingSeconds-age);
- const label=encoding?'Assemblage du MP4':labels[job.status];
+ const label=encoding?'Assemblage du MP4':rendering&&job.renderStage==='background'?'Préparation de l’ambiance':rendering&&job.renderStage==='personalization'?'Personnalisation de la vidéo':labels[job.status];
  const step=job.status==='preparing'?0:rendering&&!encoding?1:2;
  return <div className={`job ${done?'job-done':''}`}>
   <div className="job-heading"><span className="job-status-icon">{done?<CheckIcon/>:active?<SpinnerIcon/>:<VideoState/>}</span><strong role="status" aria-live="polite">{label}</strong>{active&&<span className="job-percent">{percent.toLocaleString('fr-FR',{minimumFractionDigits:1,maximumFractionDigits:1})}<small> %</small></span>}</div>
   {active&&<>
    <div className={`render-progress ${job.status==='preparing'?'is-preparing':''}`} role="progressbar" aria-label="Progression de la génération" aria-valuemin={0} aria-valuemax={100} aria-valuenow={percent} aria-valuetext={`${percent.toLocaleString('fr-FR')} % — ${label}`}><span style={{width:`${percent}%`}}/></div>
-   <div className="job-timing"><strong>{job.status==='cancelling'?'Arrêt en cours…':job.status==='verifying'||encoding?'Finalisation du fichier…':remaining===null?'Estimation en cours…':`Environ ${duration(Math.ceil(remaining/5)*5)} restantes`}</strong><span>{duration(elapsed)} écoulées</span></div>
+   <div className="job-timing"><strong>{job.status==='cancelling'?'Arrêt en cours…':job.status==='verifying'?'Finalisation du fichier…':remaining===null?'Estimation en cours…':`Environ ${duration(Math.ceil(remaining/5)*5)} restantes`}</strong><span>{duration(elapsed)} écoulées</span></div>
    <ol className="job-steps" aria-label="Étapes de génération">{['Préparation','Images','Finalisation'].map((name,i)=><li key={name} className={i<step?'complete':i===step?'current':''} aria-current={i===step?'step':undefined}><span>{i<step?<CheckIcon/>:i+1}</span>{name}</li>)}</ol>
-   {rendering&&!encoding&&job.totalFrames&&<p className="job-detail">{(job.renderedFrames??0).toLocaleString('fr-FR')} / {job.totalFrames.toLocaleString('fr-FR')} images calculées</p>}
+   {rendering&&job.totalFrames&&<p className="job-detail">{(job.renderedFrames??0).toLocaleString('fr-FR')} / {job.totalFrames.toLocaleString('fr-FR')} images {encoding?'assemblées':'calculées'}</p>}
    <button className="cancel" disabled={job.status==='cancelling'} onClick={onCancel}>Annuler la génération</button>
   </>}
-  {done&&<><p className="job-ready-detail">MP4 · Générée en {duration(elapsed)}</p><a className="download" href={`/api/jobs/${job.id}/download`}><DownloadIcon/><span>Télécharger la vidéo<small>Format MP4</small></span></a></>}
+  {done&&<><p className="job-ready-detail">MP4 · {job.cachedExport?'Disponible immédiatement':`Générée en ${duration(elapsed)}`}</p><a className="download" href={`/api/jobs/${job.id}/download`}><DownloadIcon/><span>Télécharger la vidéo<small>Format MP4</small></span></a></>}
   {job.error&&<p className="error">{job.error}</p>}
  </div>;
 }

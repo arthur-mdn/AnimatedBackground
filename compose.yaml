@@ -2,6 +2,8 @@ services:
   atelier:
     build: .
     init: true
+    environment:
+      RENDER_CACHE_MAX_MB: ${RENDER_CACHE_MAX_MB:-8192}
     ports:
       - "127.0.0.1:3000:3001"
     volumes:

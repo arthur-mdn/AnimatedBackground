@@ -13,7 +13,7 @@ La version **V0.1** propose deux ambiances pour les anniversaires : **Aquarelle*
 - Jardin : six palettes claires prédéfinies (Ivoire, Sauge, Rose, Bleu, Lavande et Champagne), appliquées au fond, au feuillage et aux textes.
 - Durée de 45 secondes par défaut, réglable jusqu’à 3 minutes.
 - Aperçu animé avec lecture en boucle et retour au début.
-- Génération avec suivi de progression, annulation et téléchargement.
+- Génération avec suivi de progression, annulation et téléchargement. Les décors déjà calculés sont réutilisés quand les textes changent ; un export identique est disponible immédiatement.
 
 Les vidéos sont exportées en **MP4 Full HD (1920 × 1080), à 30 images par seconde, sans audio**. L’entrée et la sortie sont conçues pour une diffusion continue.
 
@@ -39,9 +39,31 @@ docker compose down
 
 Les exports restent dans le volume Docker. Téléchargez vos vidéos avant de redémarrer l’application : les liens de téléchargement ne sont pas conservés entre les sessions.
 
+## Préparer les ambiances à l’avance
+
+Le premier rendu d’une ambiance prépare son fond animé sans perte. Les textes sont calculés uniquement pendant leur entrée : leur maintien et leur sortie en miroir sont assemblés avec le décor par FFmpeg, sans recalculer toute la vidéo dans le navigateur. L’âge animé de Nocturne dispose aussi de son propre cache. Les personnalisations suivantes réutilisent ce fond tant que le modèle, la palette, la durée et les options du décor restent identiques. Les fonds et exports réutilisables restent dans le volume Docker après redémarrage. Une mise à jour du moteur invalide automatiquement les anciens rendus.
+
+Pour préparer les trois modèles dans leur palette par défaut, en 45 secondes (des vidéos de démonstration sont générées) :
+
+```bash
+docker compose exec atelier npm run cache:warm
+```
+
+Pour préparer toutes les palettes d’un modèle et une durée donnée :
+
+```bash
+docker compose exec atelier npm run cache:warm -- --model=aquarelle --all-palettes --duration=45
+```
+
+Le cache est limité à 8 Go d’espace disque par défaut ; les éléments les moins récemment utilisés sont retirés lorsque cette limite est atteinte. Les fichiers de téléchargement déjà créés restent conservés. Pour réserver davantage de place aux palettes préparées :
+
+```bash
+RENDER_CACHE_MAX_MB=16384 docker compose up -d
+```
+
 ## Développement
 
-Le projet utilise React, TypeScript et Remotion. Pour travailler sans Docker, installez Node.js 22+, ffprobe et Chrome/Chromium, puis renseignez `CHROME_PATH` si nécessaire.
+Le projet utilise React, TypeScript et Remotion. Pour travailler sans Docker, installez Node.js 22+, FFmpeg (avec ffprobe) et Chrome/Chromium, puis renseignez `CHROME_PATH` si nécessaire.
 
 ```bash
 npm ci

@@ -3,6 +3,7 @@ import {AbsoluteFill,useCurrentFrame,useVideoConfig,delayRender,continueRender} 
 import type {BirthdayInput} from '../shared/config';
 import {APPEARANCE,reveal} from './timing';
 import {fadeUp} from './textMotion';
+import {useRenderLayer} from './RenderLayer';
 import {Fonts} from './Fonts';
 import {RoseInk} from './RoseInk';
 import {TypingText} from './TypingText';
@@ -13,6 +14,7 @@ import {CelebrationOrnament} from './CelebrationOrnament';
 import {WatercolorPalette,useWatercolorColor} from './WatercolorPalette';
 export function Birthday(props:BirthdayInput){return props.templateId==='jardin-mariage'?<Wedding {...props}/>:props.templateId==='bleu-minuit'?<Nocturne {...props}/>:<WatercolorPalette base={props.watercolorColor}><RoseBirthday {...props}/></WatercolorPalette>;}
 function RoseBirthday(props:BirthdayInput){
+ const layer=useRenderLayer();
  const color=useWatercolorColor(),ink=color('#CF7E7F'),gold=color('#c19a5b');
  const frame=useCurrentFrame(),{durationInFrames:total}=useVideoConfig();
  const [handle]=useState(()=>delayRender('Chargement des polices locales'));
@@ -20,12 +22,12 @@ function RoseBirthday(props:BirthdayInput){
  const style=(start:number,length:number):CSSProperties=>fadeUp(frame,total,start,length,length,14);
  const nameSize=Math.min(230,2600/Math.max(10,Array.from(props.firstName).length));
  const line1=props.messageLine1.trim(),line2=props.messageLine2.trim();
- return <AbsoluteFill style={{background:color('#fff1e9'),color:ink,fontFamily:'Portrait, Georgia, serif',overflow:'hidden'}}>
+ return <AbsoluteFill style={{background:layer==='foreground'?'transparent':color('#fff1e9'),color:ink,fontFamily:'Portrait, Georgia, serif',overflow:'hidden'}}>
  <Fonts/>
- <AbsoluteFill style={{background:`radial-gradient(ellipse at 50% 45%, ${color('#fff5ed')} 0%, ${color('#fae7df')} 100%)`}}/>
+ {layer!=='foreground'&&<><AbsoluteFill style={{background:`radial-gradient(ellipse at 50% 45%, ${color('#fff5ed')} 0%, ${color('#fae7df')} 100%)`}}/>
  <RoseInk showGoldNuggets={props.showGoldNuggets}/>
- <div style={{position:'absolute',inset:36,border:`2px solid ${gold}`,opacity:.85}}/>
- {line1&&<div style={{position:'absolute',top:line2?131:205,left:100,right:100,textAlign:'center',color:color('#987C7E'),...style(APPEARANCE.line1.start,APPEARANCE.line1.fade)}}>
+ <div style={{position:'absolute',inset:36,border:`2px solid ${gold}`,opacity:.85}}/></>}
+ {layer!=='background'&&<>{line1&&<div style={{position:'absolute',top:line2?131:205,left:100,right:100,textAlign:'center',color:color('#987C7E'),...style(APPEARANCE.line1.start,APPEARANCE.line1.fade)}}>
  <TypingText text={line1.toLocaleUpperCase('fr-FR')} fontSize={76} fontFamily="Arial, Helvetica, sans-serif" fontWeight={300} letterSpacing={15} singleLine maxWidth={1500} frame={frame} total={total} start={APPEARANCE.line1.start} length={APPEARANCE.line1.writing}/>
  </div>}
  {line2&&<div style={{position:'absolute',top:line1?175:151,left:100,right:100,textAlign:'center',...style(APPEARANCE.line2.start,APPEARANCE.line2.fade)}}>
@@ -36,5 +38,5 @@ function RoseBirthday(props:BirthdayInput){
  <div style={{position:'absolute',top:775,left:100,right:100,textAlign:'center',color:ink,WebkitTextStroke:'0.65px currentColor',paintOrder:'stroke fill',...style(APPEARANCE.firstName.start,APPEARANCE.firstName.fade)}}>
  <TypingText text={props.firstName} fontSize={nameSize} maxWidth={1500} frame={frame} total={total} start={APPEARANCE.firstName.start} length={APPEARANCE.firstName.writing}/>
  </div>
- </AbsoluteFill>;
+ </>}</AbsoluteFill>;
 }

@@ -6,6 +6,7 @@ import type {BirthdayInput} from '../shared/config';
 import {Fonts} from './Fonts';
 import {TypingText} from './TypingText';
 import {cycle,reveal} from './timing';
+import {useRenderLayer} from './RenderLayer';
 import {fadeUp} from './textMotion';
 
 const seed=(i:number)=>{const n=Math.sin(i*127.1+311.7)*43758.5453;return n-Math.floor(n);};
@@ -62,18 +63,20 @@ export function NocturneBackdrop({phase=0,cover=false}:{phase?:number;cover?:boo
 }
 export function Nocturne(props:BirthdayInput){return <NocturnePalette palette={props.nocturnePalette} customColor={props.nocturneColor}><NocturneScene {...props}/></NocturnePalette>;}
 function NocturneScene(props:BirthdayInput){
+ const layer=useRenderLayer();
  const color=useNocturneColor();
  const frame=useCurrentFrame(),{durationInFrames:total}=useVideoConfig(),phase=cycle(frame,total);
  const [fontHandle]=useState(()=>delayRender('Chargement de la typographie nocturne'));
  useEffect(()=>{Promise.all([document.fonts.load('790px Celebration'),document.fonts.load('700 150px NocturneDisplay')]).then(()=>continueRender(fontHandle)).catch(()=>continueRender(fontHandle));},[fontHandle]);
  const visible=(start:number)=>fadeUp(frame,total,start,2.3,2.7);
  const line1=props.messageLine1.trim(),line2=props.messageLine2.trim();
- return <AbsoluteFill style={{background:color('#030717'),color:color('#eef3ff'),overflow:'hidden',fontFamily:'Arial, Helvetica, sans-serif'}}>
- <Fonts/><NocturneBackdrop phase={phase*2}/>
- <div style={{position:'absolute',inset:0,display:'flex',alignItems:'center',justifyContent:'center',opacity:reveal(frame,total,1.5,4)*.22,mixBlendMode:'screen',maskImage:'linear-gradient(transparent 12%,#000 36%,#000 64%,transparent 91%)',color:color('#91a5e8'),fontFamily:'Celebration, cursive',WebkitTextStroke:'18px currentColor',paintOrder:'stroke fill',whiteSpace:'nowrap',fontSize:props.age>99?650:790,lineHeight:1,transform:`translateY(25px) scale(${1+Math.sin(phase)*.008})`}}><span>{props.age}</span><span style={{fontSize:400,WebkitTextStroke:'12px currentColor',marginLeft:15,marginTop:155}}>ans</span></div>
+ return <AbsoluteFill style={{background:(layer==='foreground'||layer==='screen')?'transparent':color('#030717'),color:color('#eef3ff'),overflow:'hidden',fontFamily:'Arial, Helvetica, sans-serif'}}>
+ <Fonts/>{(layer==='full'||layer==='background')&&<NocturneBackdrop phase={phase*2}/>}
+ {(layer==='full'||layer==='screen')&&<div style={{position:'absolute',inset:0,display:'flex',alignItems:'center',justifyContent:'center',opacity:reveal(frame,total,1.5,4)*.22,mixBlendMode:layer==='full'?'screen':'normal',maskImage:'linear-gradient(transparent 12%,#000 36%,#000 64%,transparent 91%)',color:color('#91a5e8'),fontFamily:'Celebration, cursive',WebkitTextStroke:'18px currentColor',paintOrder:'stroke fill',whiteSpace:'nowrap',fontSize:props.age>99?650:790,lineHeight:1,transform:`translateY(25px) scale(${1+Math.sin(phase)*.008})`}}><span>{props.age}</span><span style={{fontSize:400,WebkitTextStroke:'12px currentColor',marginLeft:15,marginTop:155}}>ans</span></div>}
+ {(layer==='full'||layer==='foreground')&&<>
  <div style={{position:'absolute',top:line2?285:365,left:120,right:120,textAlign:'center',textShadow:`0 1px 0 ${color('#b6c8e8')}, 0 2px 0 ${color('#8297bf')}, 0 3px 0 ${color('#536d9e')}, 0 5px 0 ${color('#263d69')}, 0 9px 12px ${color('#010615aa')}, 0 0 30px ${color('#6898ec44')}`,...visible(0)}}>{line1&&<TypingText text={line1} fontSize={134} fontFamily="NocturneDisplay, Arial, sans-serif" fontWeight={700} singleLine maxWidth={1600} frame={frame} total={total} start={0} length={.65}/>}</div>
  <div style={{position:'absolute',top:line1?405:340,left:120,right:120,textAlign:'center',textShadow:`0 1px 0 ${color('#b6c8e8')}, 0 2px 0 ${color('#8297bf')}, 0 3px 0 ${color('#536d9e')}, 0 5px 0 ${color('#263d69')}, 0 9px 12px ${color('#010615aa')}, 0 0 30px ${color('#6898ec44')}`,...visible(.8)}}>{line2&&<TypingText text={line2} fontSize={134} fontFamily="NocturneDisplay, Arial, sans-serif" fontWeight={700} singleLine maxWidth={1600} frame={frame} total={total} start={.8} length={.8}/>}</div>
  <div style={{position:'absolute',left:120,right:120,top:630,textAlign:'center',color:'#fff',textShadow:`0 1px 0 ${color('#c3d1ec')}, 0 2px 0 ${color('#91a6cc')}, 0 4px 0 ${color('#5671a1')}, 0 6px 0 ${color('#293e68')}, 0 10px 16px ${color('#010615bb')}, 0 0 32px ${color('#4e77d855')}`,...visible(2.4)}}><TypingText text={props.firstName} fontSize={158} fontFamily="NocturneDisplay, Arial, sans-serif" fontWeight={700} singleLine maxWidth={1560} frame={frame} total={total} start={2.4} length={1}/></div>
  <div style={{position:'absolute',width:160,height:1,left:880,top:850,background:`linear-gradient(90deg,transparent,${color('#9fb8f2')},transparent)`,...visible(4)}}/>
- </AbsoluteFill>;
+ </>}</AbsoluteFill>;
 }
