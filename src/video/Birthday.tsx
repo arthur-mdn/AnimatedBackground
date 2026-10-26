@@ -7,7 +7,7 @@ import {RoseInk} from './RoseInk';
 import {TypingText} from './TypingText';
 import {GlitterAge} from './GlitterAge';
 import {Nocturne} from './Nocturne';
-import {HeartOrnament} from './HeartOrnament';
+import {CelebrationOrnament} from './CelebrationOrnament';
 import {WatercolorPalette,useWatercolorColor} from './WatercolorPalette';
 export function Birthday(props:BirthdayInput){return props.templateId==='bleu-minuit'?<Nocturne {...props}/>:<WatercolorPalette base={props.watercolorColor}><RoseBirthday {...props}/></WatercolorPalette>;}
 function RoseBirthday(props:BirthdayInput){
@@ -35,7 +35,7 @@ function RoseBirthday(props:BirthdayInput){
  <TypingText text={line2} fontSize={210} singleLine maxWidth={1500} frame={frame} total={total} start={APPEARANCE.line2.start} length={APPEARANCE.line2.writing}/>
  </div>}
  <div style={{position:'absolute',top:315,left:0,right:0,...style(APPEARANCE.age.start,APPEARANCE.age.fade)}}><GlitterAge age={props.age}/></div>
- <div style={{position:'absolute',top:730,left:0,right:0,textAlign:'center',...style(APPEARANCE.heart.start,APPEARANCE.heart.fade)}}><HeartOrnament/></div>
+ <div style={{position:'absolute',top:730,left:0,right:0,textAlign:'center',...style(APPEARANCE.heart.start,APPEARANCE.heart.fade)}}><CelebrationOrnament kind={props.ornament}/></div>
  <div style={{position:'absolute',top:775,left:100,right:100,textAlign:'center',color:ink,WebkitTextStroke:'0.65px currentColor',paintOrder:'stroke fill',...style(APPEARANCE.firstName.start,APPEARANCE.firstName.fade)}}>
  <TypingText text={props.firstName} fontSize={nameSize} maxWidth={1500} frame={frame} total={total} start={APPEARANCE.firstName.start} length={APPEARANCE.firstName.writing}/>
  </div>

@@ -7,7 +7,7 @@ La version **V0.1** propose deux ambiances pour les anniversaires : **Aquarelle*
 ## Personnalisation
 
 - Prénom, âge et deux lignes de message indépendantes.
-- Aquarelle : huit palettes et une couleur personnalisée, appliquées au décor, aux textes, aux chiffres, au cœur et aux pépites.
+- Aquarelle : huit palettes et une couleur personnalisée, appliquées au décor, aux textes, aux chiffres, à l’icône et aux pépites. Icônes au choix : cœur, champagne, bières, gâteau, étoiles ou aucune.
 - Nocturne : ciel étoilé, projecteurs oscillants, notes flottantes et âge en transparence. Six palettes : bleu nuit, rouge couchant, orange crépuscule, violet astral, vert boréal et rose aurore, plus une couleur personnalisée.
 - Durée de 45 secondes par défaut, réglable jusqu’à 3 minutes.
 - Aperçu animé avec lecture en boucle et retour au début.
