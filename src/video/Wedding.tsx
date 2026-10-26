@@ -6,6 +6,8 @@ import type {BirthdayInput} from '../shared/config';
 import {weddingNames,formatWeddingDate} from '../shared/wedding';
 import {Fonts} from './Fonts';
 import {TypingText} from './TypingText';
+import {HandwrittenText} from './HandwrittenText';
+import {WEDDING_WRITING} from './handwriting';
 import {WeddingFoliage} from './WeddingFoliage';
 import {cycle,reveal,smooth} from './timing';
 import {useRenderLayer} from './RenderLayer';
@@ -43,14 +45,14 @@ export function Wedding(props:BirthdayInput){
   </>}{layer!=='background'&&<>{props.weddingMessage&&<div style={{position:'absolute',left:330,right:330,top:205,textAlign:'center',color:palette.muted,...appear(0)}}>
    <TypingText text={props.weddingMessage} fontSize={82} singleLine maxWidth={1260} frame={frame} total={total} start={0} length={1.2}/>
   </div>}
-  <div style={{position:'absolute',left:270,right:270,top:props.weddingMessage?310:270,textAlign:'center',...appear(.7)}}>
-   <TypingText text={`${names[0]} &`} fontFamily="GardenNames, cursive" fontSize={230} singleLine maxWidth={1280} frame={frame} total={total} start={.7} length={1.4}/>
+  <div style={{position:'absolute',left:270,right:270,top:props.weddingMessage?310:270,textAlign:'center'}}>
+   <HandwrittenText text={names[0]} trailing={{text:' &',...WEDDING_WRITING.ampersand}} fontSize={230} maxWidth={1280} frame={frame} total={total} {...WEDDING_WRITING.firstName}/>
   </div>
-  <div style={{position:'absolute',left:270,right:270,top:props.weddingMessage?505:470,textAlign:'center',...appear(2.6)}}>
-   <TypingText text={names[1]} fontFamily="GardenNames, cursive" fontSize={230} singleLine maxWidth={1280} frame={frame} total={total} start={2.6} length={1.4}/>
+  <div style={{position:'absolute',left:270,right:270,top:props.weddingMessage?505:470,textAlign:'center'}}>
+   <HandwrittenText text={names[1]} fontSize={230} maxWidth={1280} frame={frame} total={total} {...WEDDING_WRITING.secondName}/>
   </div>
-  <div style={{position:'absolute',left:350,right:350,top:795,textAlign:'center',color:palette.secondary,...appear(5)}}>
-   <TypingText text={formatWeddingDate(props.weddingDate)} fontSize={78} singleLine maxWidth={1220} frame={frame} total={total} start={5} length={1}/>
+  <div style={{position:'absolute',left:350,right:350,top:795,textAlign:'center',color:palette.secondary,...appear(WEDDING_WRITING.date.start)}}>
+   <TypingText text={formatWeddingDate(props.weddingDate)} fontSize={78} singleLine maxWidth={1220} frame={frame} total={total} start={WEDDING_WRITING.date.start} length={1}/>
   </div>
  </>}</AbsoluteFill></GardenPalette>;
 }
