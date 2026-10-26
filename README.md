@@ -17,7 +17,7 @@ La version **V0.1** propose deux ambiances pour les anniversaires : **Aquarelle*
 
 Les vidéos sont exportées en **MP4 Full HD (1920 × 1080), à 30 images par seconde, sans audio**. L’entrée et la sortie sont conçues pour une diffusion continue.
 
-La génération s’effectue sur votre machine, sans service externe. Vos derniers réglages sont conservés dans le navigateur.
+La génération s’effectue sur la machine qui héberge l’application (votre ordinateur en local, le VPS en production), sans service de rendu externe. Vos derniers réglages sont conservés dans le navigateur.
 
 ## Lancement avec Docker
 
@@ -38,6 +38,44 @@ docker compose down
 ```
 
 Les exports restent dans le volume Docker. Téléchargez vos vidéos avant de redémarrer l’application : les liens de téléchargement ne sont pas conservés entre les sessions.
+
+## Production sur le VPS
+
+Le fichier `docker-compose.prod.yml` est autonome et reprend l’organisation de BlindSet : Traefik existant, entrée HTTPS `websecure`, certificats via `myresolver`, sans port applicatif publié sur l’hôte. Il dessert [animatedbackground.privateevents.fr](https://animatedbackground.privateevents.fr) et conserve les exports et le cache dans le volume `animatedbackground-prod_exports`.
+
+Sur le VPS, faire pointer le DNS A (et AAAA si utilisé) du sous-domaine vers le serveur, puis lancer depuis le dépôt :
+
+```bash
+docker compose -f docker-compose.prod.yml config --quiet
+docker compose -f docker-compose.prod.yml up --build -d
+docker compose -f docker-compose.prod.yml logs -f atelier
+```
+
+Utiliser uniquement ce fichier pour la production ; `compose.yaml` conserve le lancement local sur le port 3000. Adapter `websecure` et `myresolver` dans les labels si leurs noms diffèrent sur le VPS.
+
+Comme dans l’exemple BlindSet, le service utilise le réseau Compose par défaut, ici `animatedbackground-prod_default`. Traefik doit pouvoir joindre ce réseau : s’il est lui-même dans un conteneur sur un réseau isolé, le connecter au réseau du projet, ou adapter les réseaux du fichier au réseau partagé déjà utilisé sur le VPS. La découverte via les labels ne remplace pas cette connectivité ([documentation Docker/Traefik](https://docs.docker.com/guides/traefik)).
+
+`PUBLIC_URL` configure explicitement le domaine et l’origine HTTPS acceptés par l’API. Les requêtes locales restent possibles pour le healthcheck et le préchauffage du cache. Aucun changement de l’URL d’API du frontend n’est nécessaire : elle reste relative au même domaine.
+
+La configuration limite le conteneur à 4 Go de RAM et 2 CPU par défaut, avec 1 Go de mémoire partagée pour Chromium. Le rendu vidéo demande davantage de ressources qu’un site statique ; adapter ces limites aux ressources disponibles sur le VPS et aux autres services. Les 8 Go du cache correspondent à de l’espace disque, en plus des exports conservés. Les limites peuvent être ajustées avec `APP_MEMORY_LIMIT`, `APP_CPUS` et `RENDER_CACHE_MAX_MB`, dans l’environnement ou dans un fichier `.env` local au serveur :
+
+```bash
+APP_MEMORY_LIMIT=6g APP_CPUS=4 RENDER_CACHE_MAX_MB=16384 docker compose -f docker-compose.prod.yml up --build -d
+```
+
+Pour préparer les ambiances sur le serveur :
+
+```bash
+docker compose -f docker-compose.prod.yml exec atelier npm run cache:warm
+```
+
+Pour arrêter la production en conservant les vidéos et le cache :
+
+```bash
+docker compose -f docker-compose.prod.yml down
+```
+
+Les fichiers `.env` sont exclus de Git et de l’image Docker. Comme en local, les fichiers persistent mais les liens de téléchargement des tâches ne survivent pas au redémarrage de l’application.
 
 ## Préparer les ambiances à l’avance
 

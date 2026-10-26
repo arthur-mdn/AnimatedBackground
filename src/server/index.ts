@@ -1,4 +1,5 @@
 import express from 'express';
+import {createRequestOriginPolicy} from './requestOrigin';
 import {fork,type ChildProcess} from 'node:child_process';
 import {randomUUID} from 'node:crypto';
 import {mkdir,rm,access} from 'node:fs/promises';
@@ -10,12 +11,13 @@ const jobs=new Map<string,Job>();
 let active:Job|undefined,child:ChildProcess|undefined;
 app.disable('x-powered-by');
 app.use(express.json({limit:'8kb'}));
-// Local UI only: reject cross-origin mutations, including DNS rebinding requests.
+// Keep local access for health checks and cache warming; allow only the
+// explicitly configured public host and same-origin browser requests.
+const acceptsRequest=createRequestOriginPolicy(process.env.PUBLIC_URL);
 app.use('/api',(req,res,next)=>{
- const host=req.hostname;
- if(!['localhost','127.0.0.1','::1'].includes(host)){res.status(403).json({error:'Accès local uniquement.'});return;}
- const origin=req.get('origin');
- if(origin&&origin!==`${req.protocol}://${req.get('host')}`){res.status(403).json({error:'Origine non autorisée.'});return;}
+ if(!acceptsRequest({hostname:req.hostname,host:req.get('host')||'',protocol:req.protocol,origin:req.get('origin')})){
+  res.status(403).json({error:'Hôte ou origine non autorisé.'});return;
+ }
  next();
 });
 app.get('/api/health',async(_req,res)=>{try{await access(out);res.json({ok:true,activeJob:active&&isActive(active)?active:null});}catch{res.status(503).json({error:'Dossier de sortie indisponible.'});}});

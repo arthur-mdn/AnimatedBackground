@@ -3,3 +3,6 @@ dist
 output
 .git
 .DS_Store
+
+.env
+.env.*

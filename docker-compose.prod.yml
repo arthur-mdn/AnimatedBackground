@@ -1,0 +1,52 @@
+# Standalone production stack: docker compose -f docker-compose.prod.yml up --build -d
+name: animatedbackground-prod
+
+services:
+  atelier:
+    container_name: animatedbackground
+    image: animatedbackground:production
+    build:
+      context: .
+      dockerfile: Dockerfile
+    init: true
+    restart: always
+    environment:
+      NODE_ENV: production
+      HOST: 0.0.0.0
+      PORT: "3001"
+      PUBLIC_URL: https://animatedbackground.privateevents.fr
+      RENDER_CACHE_MAX_MB: ${RENDER_CACHE_MAX_MB:-8192}
+    volumes:
+      - exports:/app/output
+    shm_size: 1gb
+    mem_limit: ${APP_MEMORY_LIMIT:-4g}
+    cpus: ${APP_CPUS:-2.0}
+    stop_grace_period: 30s
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3001/api/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+      interval: 15s
+      timeout: 5s
+      start_period: 30s
+      retries: 3
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.animatedbackground.rule=Host(`animatedbackground.privateevents.fr`)"
+      - "traefik.http.routers.animatedbackground.entrypoints=websecure"
+      - "traefik.http.routers.animatedbackground.tls=true"
+      - "traefik.http.routers.animatedbackground.tls.certresolver=myresolver"
+      - "traefik.http.routers.animatedbackground.service=animatedbackground"
+      - "traefik.http.services.animatedbackground.loadbalancer.server.port=3001"
+      - "traefik.http.services.animatedbackground.loadbalancer.passhostheader=true"
+
+volumes:
+  exports:
+    driver: local

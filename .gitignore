@@ -6,3 +6,7 @@ output/
 *.log
 docs
 
+
+.env
+.env.*
+!.env.example
