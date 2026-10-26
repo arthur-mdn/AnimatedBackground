@@ -34,7 +34,7 @@ function RoseBirthday(props:BirthdayInput){
  {line2&&<div style={{position:'absolute',top:line1?175:151,left:100,right:100,textAlign:'center'}}>
  <HandwrittenText text={line2} fontFamily="Celebration" fontSize={210} maxWidth={1500} frame={frame} total={total} start={APPEARANCE.line2.start} length={APPEARANCE.line2.writing}/>
  </div>}
- <div style={{position:'absolute',top:315,left:0,right:0,...style(APPEARANCE.age.start,APPEARANCE.age.fade)}}><GlitterAge age={props.age}/></div>
+ <div style={{position:'absolute',top:props.ornament==='none'?343:315,left:0,right:0,...style(APPEARANCE.age.start,APPEARANCE.age.fade)}}><GlitterAge age={props.age}/></div>
  <div style={{position:'absolute',top:730,left:0,right:0,textAlign:'center',...style(APPEARANCE.heart.start,APPEARANCE.heart.fade)}}><CelebrationOrnament kind={props.ornament}/></div>
  <div style={{position:'absolute',top:775,left:100,right:100,textAlign:'center',color:ink}}>
  <HandwrittenText text={props.firstName} fontFamily="Celebration" textStrokeWidth={.65} fontSize={nameSize} maxWidth={1500} frame={frame} total={total} start={APPEARANCE.firstName.start} length={APPEARANCE.firstName.writing}/>
