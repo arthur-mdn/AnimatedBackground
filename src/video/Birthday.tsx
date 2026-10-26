@@ -7,9 +7,10 @@ import {RoseInk} from './RoseInk';
 import {TypingText} from './TypingText';
 import {GlitterAge} from './GlitterAge';
 import {Nocturne} from './Nocturne';
+import {Wedding} from './Wedding';
 import {CelebrationOrnament} from './CelebrationOrnament';
 import {WatercolorPalette,useWatercolorColor} from './WatercolorPalette';
-export function Birthday(props:BirthdayInput){return props.templateId==='bleu-minuit'?<Nocturne {...props}/>:<WatercolorPalette base={props.watercolorColor}><RoseBirthday {...props}/></WatercolorPalette>;}
+export function Birthday(props:BirthdayInput){return props.templateId==='jardin-mariage'?<Wedding {...props}/>:props.templateId==='bleu-minuit'?<Nocturne {...props}/>:<WatercolorPalette base={props.watercolorColor}><RoseBirthday {...props}/></WatercolorPalette>;}
 function RoseBirthday(props:BirthdayInput){
  const color=useWatercolorColor(),ink=color('#CF7E7F'),gold=color('#c19a5b');
  const frame=useCurrentFrame(),{durationInFrames:total}=useVideoConfig();

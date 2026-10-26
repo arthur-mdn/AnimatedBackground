@@ -2,11 +2,12 @@
 
 AnimatedBackground permet de créer des vidéos personnalisées à diffuser en boucle sur un écran ou un vidéoprojecteur pendant un événement. Choisissez une ambiance, adaptez les textes et téléchargez votre animation en MP4.
 
-La version **V0.1** propose deux ambiances pour les anniversaires : **Aquarelle** (encre et éclats aux couleurs personnalisables) et **Nocturne** (ciel étoilé, notes flottantes et projecteurs animés). D’autres modèles, notamment pour les mariages, sont prévus.
+La version **V0.1** propose deux ambiances pour les anniversaires : **Aquarelle** (encre et éclats aux couleurs personnalisables) et **Nocturne** (ciel étoilé, notes flottantes et projecteurs animés). Le modèle **Jardin — Mariage** propose deux prénoms, une date, une phrase facultative, du feuillage animé et une colombe.
 
 ## Personnalisation
 
-- Prénom, âge et deux lignes de message indépendantes.
+- Anniversaires : prénom, âge et deux lignes de message indépendantes.
+- Mariages : prénom de la mariée en premier par défaut, ordre inversable, date et phrase facultative.
 - Aquarelle : huit palettes et une couleur personnalisée, appliquées au décor, aux textes, aux chiffres, à l’icône et aux pépites. Icônes au choix : cœur, champagne, bières, gâteau, étoiles ou aucune.
 - Nocturne : ciel étoilé, projecteurs oscillants, notes flottantes et âge en transparence. Six palettes : bleu nuit, rouge couchant, orange crépuscule, violet astral, vert boréal et rose aurore, plus une couleur personnalisée.
 - Durée de 45 secondes par défaut, réglable jusqu’à 3 minutes.

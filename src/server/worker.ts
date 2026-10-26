@@ -11,6 +11,7 @@ const send=(data:unknown)=>process.send?.(data);
 try{
  const input=inputSchema.parse(JSON.parse(process.env.RENDER_INPUT!));
  await Promise.all(['alex-brush-latin-400-normal.woff2','alex-brush-latin-ext-400-normal.woff2','bodoni-moda-latin-700-normal.woff2','bodoni-moda-latin-ext-700-normal.woff2'].map(f=>access(resolve('public/fonts',f))));
+ if(input.templateId==='jardin-mariage')await access(resolve('public/media/wedding-bird-loop.mp4'));
  const browserExecutable=process.env.CHROME_PATH||undefined;
  const serveUrl=await bundle({entryPoint:resolve('src/video/Root.tsx'),publicDir:resolve('public')});
  if(cancelled)throw new Error('Annulé');

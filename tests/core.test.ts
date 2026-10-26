@@ -21,3 +21,19 @@ test('Pépites : dérive légère vers le bas et raccord sans saut',async()=>{co
 test('Option pépites typée et partagée',()=>{for(const showGoldNuggets of [true,false])assert.equal(inputSchema.parse({...defaults,showGoldNuggets}).showGoldNuggets,showGoldNuggets);assert.equal(inputSchema.safeParse({...defaults,showGoldNuggets:'oui'}).success,false);});
 test('Ordre d’apparition et écriture rapide avant fin du fondu',async()=>{const {APPEARANCE}=await import('../src/video/timing');const stages=[APPEARANCE.line1,APPEARANCE.line2,APPEARANCE.firstName,APPEARANCE.age,APPEARANCE.years,APPEARANCE.heart];for(let i=1;i<stages.length;i++)assert.ok(stages[i].start>stages[i-1].start);for(const stage of stages)assert.ok(stage.start+stage.fade<=9);for(const stage of [APPEARANCE.line1,APPEARANCE.line2,APPEARANCE.firstName])assert.ok(stage.writing<stage.fade);assert.ok(APPEARANCE.line1.writing<APPEARANCE.line2.writing);});
 test('Scintillements ponctuels, bornés et sans flash au raccord',async()=>{const {nuggetSparkle}=await import('../src/video/GoldNuggets');for(const total of [900,1800,5400]){let lit=0;for(let i=0;i<64;i++){assert.equal(nuggetSparkle(0,total,i,13),0);assert.equal(nuggetSparkle(total-1,total,i,13),0);for(let f=0;f<total;f+=5){const value=nuggetSparkle(f,total,i,13);assert.ok(value>=0&&value<=1);if(value>0)lit++;}}assert.ok(lit>0);}});
+
+test('Mariage : ordre des prénoms, date et champs propres au modèle',async()=>{
+ const {weddingNames,formatWeddingDate,isWeddingDate}=await import('../src/shared/wedding');
+ const input={...defaults,templateId:'jardin-mariage' as const,brideName:'Laura',groomName:'Maxime',weddingDate:'2027-06-12'};
+ assert.equal(defaults.weddingMessage,'');
+ assert.deepEqual(weddingNames(input),['Laura','Maxime']);
+ assert.deepEqual(weddingNames({...input,reverseNames:true}),['Maxime','Laura']);
+ assert.equal(formatWeddingDate(input.weddingDate),'12 juin 2027');
+ assert.equal(isWeddingDate('2024-02-29'),true);
+ for(const weddingDate of ['','2025-02-29','2027-04-31','12/06/2027'])assert.equal(inputSchema.safeParse({...input,weddingDate}).success,false);
+ for(const patch of [{brideName:''},{groomName:''},{weddingMessage:'X'.repeat(101)}])assert.equal(inputSchema.safeParse({...input,...patch}).success,false);
+ const parsed=inputSchema.parse({...input,firstName:'',age:NaN});
+ assert.equal(parsed.age,50);
+ assert.equal(filename(parsed),'mariage_laura-maxime_2027-06-12_45s.mp4');
+ assert.equal(filename({...parsed,reverseNames:true}),'mariage_maxime-laura_2027-06-12_45s.mp4');
+});
