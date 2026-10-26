@@ -1,7 +1,9 @@
 import {useEffect,useState} from 'react';
+import {useNocturneColor} from '../video/NocturnePalette';
 import {NocturneBackdrop} from '../video/Nocturne';
 
 export function NocturneSwatch(){
+ const color=useNocturneColor();
  const [offset,setOffset]=useState<{x:number;y:number;scale:number}|null>(null);
  useEffect(()=>{
   let mounted=true;
@@ -19,7 +21,7 @@ export function NocturneSwatch(){
  },[]);
  return <span className="swatch night-swatch" aria-hidden="true"><NocturneBackdrop cover/>
   <svg className="night-swatch-age" viewBox="0 0 600 600" width="56" height="56">
-   <text x="0" y="0" transform={offset?`translate(300 318) scale(${offset.scale}) translate(${offset.x} ${offset.y})`:undefined} fontFamily="Celebration, cursive" fontSize="460" fill="#adbfed" stroke="#adbfed" strokeWidth="11" paintOrder="stroke fill" opacity={offset ? 0.72 : 0}>50</text>
+   <text x="0" y="0" transform={offset?`translate(300 318) scale(${offset.scale}) translate(${offset.x} ${offset.y})`:undefined} fontFamily="Celebration, cursive" fontSize="460" fill={color('#adbfed')} stroke={color('#adbfed')} strokeWidth="11" paintOrder="stroke fill" opacity={offset ? 0.72 : 0}>50</text>
   </svg>
  </span>;
 }

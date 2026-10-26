@@ -1,3 +1,4 @@
+import {watercolorRGB,useWatercolorBase,useWatercolorColor} from './WatercolorPalette';
 import {useCurrentFrame,useVideoConfig} from 'remotion';
 import {smooth} from './timing';
 import {GoldNuggets} from './GoldNuggets';
@@ -29,6 +30,8 @@ export function inkWaterMotion(frame:number,total:number){
 }
 
 function InkCorner({id,spread,water,showGoldNuggets,opposite=false}:{id:string;spread:number;water:ReturnType<typeof inkWaterMotion>;showGoldNuggets:boolean;opposite?:boolean}){
+ const color=useWatercolorColor(),base=useWatercolorBase();
+ const [red,green,blue]=base.toUpperCase()==='#CF7E7F'?[.76,.38,.4]:watercolorRGB('#c26166',base);
  const radius=250+spread*450;
  return <g opacity={0.84} transform={opposite?'translate(1920 1080) rotate(180)':'translate(0 0)'}>
  <defs>
@@ -44,8 +47,8 @@ function InkCorner({id,spread,water,showGoldNuggets,opposite=false}:{id:string;s
    <rect x="-70" y="-70" width="1000" height="1000" fill={`url(#${id}-opacity)`}/>
   </mask>
   <radialGradient id={`${id}-pigment`} cx="28%" cy="25%" r="78%">
-   <stop stopColor="#eda4a7" stopOpacity=".62"/><stop offset=".52" stopColor="#f3bcb8" stopOpacity=".56"/>
-   <stop offset=".85" stopColor="#de929a" stopOpacity=".42"/><stop offset="1" stopColor="#f1b8b9" stopOpacity=".12"/>
+   <stop stopColor={color('#eda4a7')} stopOpacity=".62"/><stop offset=".52" stopColor={color('#f3bcb8')} stopOpacity=".56"/>
+   <stop offset=".85" stopColor={color('#de929a')} stopOpacity=".42"/><stop offset="1" stopColor={color('#f1b8b9')} stopOpacity=".12"/>
   </radialGradient>
   <filter id={`${id}-bleed`} x="-20%" y="-20%" width="140%" height="140%" colorInterpolationFilters="sRGB">
    <feTurbulence type="fractalNoise" baseFrequency=".018 .022" numOctaves={3} seed={opposite?47:23} result="grain"/>
@@ -56,7 +59,7 @@ function InkCorner({id,spread,water,showGoldNuggets,opposite=false}:{id:string;s
   <filter id={`${id}-texture`} x="0" y="0" width="100%" height="100%" colorInterpolationFilters="sRGB">
    <feTurbulence type="fractalNoise" baseFrequency=".035" numOctaves={4} seed={opposite?11:31} result="pigment-grain"/>
    <feOffset in="pigment-grain" dx={water.x} dy={water.y}/>
-   <feColorMatrix type="matrix" values="0 0 0 0 .76  0 0 0 0 .38  0 0 0 0 .4  0 0 0 .48 -.13"/>
+   <feColorMatrix type="matrix" values={`0 0 0 0 ${red}  0 0 0 0 ${green}  0 0 0 0 ${blue}  0 0 0 .48 -.13`}/>
   </filter>
   <mask id={`${id}-spread`} maskUnits="userSpaceOnUse" x="-70" y="-70" width="1000" height="1000">
    <path d={inkOutline(radius,opposite?8:3,.98,water.phase)} fill="white" filter={`url(#${id}-bleed)`}/>
@@ -67,15 +70,15 @@ function InkCorner({id,spread,water,showGoldNuggets,opposite=false}:{id:string;s
   <path d={inkOutline(800,3,.98)} fill={`url(#${id}-pigment)`}/>
   <g filter={`url(#${id}-bleed)`}>
   {Array.from({length:12},(_,i)=><path key={i} d={inkOutline(350+i*40,i+1,.94,water.phase)}
-    fill={i%3===0?'#f7d5d0':'#d58b9a'} fillOpacity={i%3===0?.09:.032}
-    stroke="#c78594" strokeOpacity=".09" strokeWidth={1.2}
+    fill={i%3===0?color('#f7d5d0'):color('#d58b9a')} fillOpacity={i%3===0?.09:.032}
+    stroke={color('#c78594')} strokeOpacity=".09" strokeWidth={1.2}
     transform={`translate(${Math.sin(i*3)*40} ${Math.cos(i*2)*45})`}
     />)}
   </g>
   <rect x="-20" y="-20" width="900" height="900" filter={`url(#${id}-texture)`} opacity=".65"/>
   {showGoldNuggets&&<GoldNuggets id={id} seed={opposite?47:13} opposite={opposite}/>}
  </g>
- <path d={inkOutline(radius,opposite?8:3,.98,water.phase)} fill="none" stroke="#bc7585" strokeWidth="2" strokeOpacity=".15" filter={`url(#${id}-bleed)`}/>
+ <path d={inkOutline(radius,opposite?8:3,.98,water.phase)} fill="none" stroke={color('#bc7585')} strokeWidth="2" strokeOpacity=".15" filter={`url(#${id}-bleed)`}/>
  </g>
  </g>;
 }

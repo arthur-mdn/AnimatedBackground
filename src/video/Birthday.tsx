@@ -8,9 +8,10 @@ import {TypingText} from './TypingText';
 import {GlitterAge} from './GlitterAge';
 import {Nocturne} from './Nocturne';
 import {HeartOrnament} from './HeartOrnament';
-const ink='#CF7E7F',gold='#c19a5b';
-export function Birthday(props:BirthdayInput){return props.templateId==='bleu-minuit'?<Nocturne {...props}/>:<RoseBirthday {...props}/>;}
+import {WatercolorPalette,useWatercolorColor} from './WatercolorPalette';
+export function Birthday(props:BirthdayInput){return props.templateId==='bleu-minuit'?<Nocturne {...props}/>:<WatercolorPalette base={props.watercolorColor}><RoseBirthday {...props}/></WatercolorPalette>;}
 function RoseBirthday(props:BirthdayInput){
+ const color=useWatercolorColor(),ink=color('#CF7E7F'),gold=color('#c19a5b');
  const frame=useCurrentFrame(),{durationInFrames:total}=useVideoConfig();
  const [handle]=useState(()=>delayRender('Chargement des polices locales'));
  useEffect(()=>{Promise.all([document.fonts.load('210px Celebration'),document.fonts.load('700 370px Portrait')]).then(()=>continueRender(handle)).catch(()=>continueRender(handle));},[handle]);
@@ -22,12 +23,12 @@ function RoseBirthday(props:BirthdayInput){
  };
  const nameSize=Math.min(230,2600/Math.max(10,Array.from(props.firstName).length));
  const line1=props.messageLine1.trim(),line2=props.messageLine2.trim();
- return <AbsoluteFill style={{background:'#fff1e9',color:ink,fontFamily:'Portrait, Georgia, serif',overflow:'hidden'}}>
+ return <AbsoluteFill style={{background:color('#fff1e9'),color:ink,fontFamily:'Portrait, Georgia, serif',overflow:'hidden'}}>
  <Fonts/>
- <AbsoluteFill style={{background:'radial-gradient(ellipse at 50% 45%, #fff5ed 0%, #fae7df 100%)'}}/>
+ <AbsoluteFill style={{background:`radial-gradient(ellipse at 50% 45%, ${color('#fff5ed')} 0%, ${color('#fae7df')} 100%)`}}/>
  <RoseInk showGoldNuggets={props.showGoldNuggets}/>
  <div style={{position:'absolute',inset:36,border:`2px solid ${gold}`,opacity:.85}}/>
- {line1&&<div style={{position:'absolute',top:line2?131:205,left:100,right:100,textAlign:'center',color:'#302c29',...style(APPEARANCE.line1.start,APPEARANCE.line1.fade)}}>
+ {line1&&<div style={{position:'absolute',top:line2?131:205,left:100,right:100,textAlign:'center',color:color('#302c29'),...style(APPEARANCE.line1.start,APPEARANCE.line1.fade)}}>
  <TypingText text={line1.toLocaleUpperCase('fr-FR')} fontSize={76} fontFamily="Arial, Helvetica, sans-serif" fontWeight={300} letterSpacing={15} singleLine maxWidth={1500} frame={frame} total={total} start={APPEARANCE.line1.start} length={APPEARANCE.line1.writing}/>
  </div>}
  {line2&&<div style={{position:'absolute',top:line1?175:151,left:100,right:100,textAlign:'center',...style(APPEARANCE.line2.start,APPEARANCE.line2.fade)}}>
