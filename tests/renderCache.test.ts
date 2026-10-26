@@ -55,6 +55,10 @@ test('Version : les sources et les ressources invalident les fonds, les dates de
   for(const folder of ['src/video','src/shared','src/server','public'])await mkdir(join(dir,folder),{recursive:true});
   await writeFile(join(dir,'src/server/worker.ts'),'worker');await writeFile(join(dir,'src/server/lossless.ts'),'lossless');await writeFile(join(dir,'src/server/composite.ts'),'composite');await writeFile(join(dir,'package-lock.json'),'{}');const path=join(dir,'src/video/scene.tsx');await writeFile(path,'original');
   const first=await computeRenderVersion(dir);await utimes(path,new Date(0),new Date(0));assert.equal(await computeRenderVersion(dir),first);
+  for(const icon of ['favicon.svg','favicon.ico','apple-touch-icon.png'])await writeFile(join(dir,'public',icon),'browser icon');
+  assert.equal(await computeRenderVersion(dir),first);
+  await writeFile(join(dir,'public','video-texture.png'),'video asset');assert.notEqual(await computeRenderVersion(dir),first);
+  await rm(join(dir,'public','video-texture.png'));
   await writeFile(path,'modified');assert.notEqual(await computeRenderVersion(dir),first);
  }finally{await rm(dir,{recursive:true,force:true});}
 });
