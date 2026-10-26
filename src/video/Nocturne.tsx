@@ -6,6 +6,7 @@ import type {BirthdayInput} from '../shared/config';
 import {Fonts} from './Fonts';
 import {TypingText} from './TypingText';
 import {cycle,reveal} from './timing';
+import {fadeUp} from './textMotion';
 
 const seed=(i:number)=>{const n=Math.sin(i*127.1+311.7)*43758.5453;return n-Math.floor(n);};
 export function NocturneBackdrop({phase=0,cover=false}:{phase?:number;cover?:boolean}){
@@ -65,7 +66,7 @@ function NocturneScene(props:BirthdayInput){
  const frame=useCurrentFrame(),{durationInFrames:total}=useVideoConfig(),phase=cycle(frame,total);
  const [fontHandle]=useState(()=>delayRender('Chargement de la typographie nocturne'));
  useEffect(()=>{Promise.all([document.fonts.load('790px Celebration'),document.fonts.load('700 150px NocturneDisplay')]).then(()=>continueRender(fontHandle)).catch(()=>continueRender(fontHandle));},[fontHandle]);
- const visible=(start:number)=>({opacity:reveal(frame,total,start,2.3),transform:`translateY(${(1-reveal(frame,total,start,2.7))*12}px)`});
+ const visible=(start:number)=>fadeUp(frame,total,start,2.3,2.7);
  const line1=props.messageLine1.trim(),line2=props.messageLine2.trim();
  return <AbsoluteFill style={{background:color('#030717'),color:color('#eef3ff'),overflow:'hidden',fontFamily:'Arial, Helvetica, sans-serif'}}>
  <Fonts/><NocturneBackdrop phase={phase*2}/>

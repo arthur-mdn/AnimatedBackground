@@ -2,6 +2,7 @@ import {useEffect,useState,type CSSProperties} from 'react';
 import {AbsoluteFill,useCurrentFrame,useVideoConfig,delayRender,continueRender} from 'remotion';
 import type {BirthdayInput} from '../shared/config';
 import {APPEARANCE,reveal} from './timing';
+import {fadeUp} from './textMotion';
 import {Fonts} from './Fonts';
 import {RoseInk} from './RoseInk';
 import {TypingText} from './TypingText';
@@ -16,12 +17,7 @@ function RoseBirthday(props:BirthdayInput){
  const frame=useCurrentFrame(),{durationInFrames:total}=useVideoConfig();
  const [handle]=useState(()=>delayRender('Chargement des polices locales'));
  useEffect(()=>{Promise.all([document.fonts.load('210px Celebration'),document.fonts.load('700 370px Portrait')]).then(()=>continueRender(handle)).catch(()=>continueRender(handle));},[handle]);
- const style=(start:number,length:number):CSSProperties=>{
-  const p=reveal(frame,total,start,length);
-  const t=Math.min(1,Math.max(0,(Math.min(frame,total-1-frame)/30-start)/length));
-  const movement=t*t*t*(10+t*(-15+6*t));
-  return {opacity:p,transform:`translate3d(0,${(1-movement)*14}px,0)`,willChange:'transform, opacity',backfaceVisibility:'hidden'};
- };
+ const style=(start:number,length:number):CSSProperties=>fadeUp(frame,total,start,length,length,14);
  const nameSize=Math.min(230,2600/Math.max(10,Array.from(props.firstName).length));
  const line1=props.messageLine1.trim(),line2=props.messageLine2.trim();
  return <AbsoluteFill style={{background:color('#fff1e9'),color:ink,fontFamily:'Portrait, Georgia, serif',overflow:'hidden'}}>

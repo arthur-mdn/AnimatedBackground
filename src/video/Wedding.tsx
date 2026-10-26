@@ -8,6 +8,7 @@ import {Fonts} from './Fonts';
 import {TypingText} from './TypingText';
 import {WeddingFoliage} from './WeddingFoliage';
 import {cycle,reveal,smooth} from './timing';
+import {fadeUp} from './textMotion';
 export function Wedding(props:BirthdayInput){
  const frame=useCurrentFrame(),{durationInFrames:total}=useVideoConfig(),phase=cycle(frame,total);
  const [handle]=useState(()=>delayRender('Chargement des polices du mariage'));
@@ -15,7 +16,7 @@ export function Wedding(props:BirthdayInput){
  const names=weddingNames(props).map(name=>name.trim()||'Prénom'),time=Math.min(frame,total-1-frame)/30;
  const palette=gardenPalette(props.gardenPalette);
  const arrival=smooth((time-.5)/3.5);
- const appear=(start:number)=>({opacity:reveal(frame,total,start,2.8),transform:`translate3d(0,${(1-reveal(frame,total,start,3.2))*12}px,0)`});
+ const appear=(start:number)=>fadeUp(frame,total,start,2.8,3.2);
  return <GardenPalette palette={props.gardenPalette}><AbsoluteFill style={{background:palette.background,color:palette.text,overflow:'hidden',isolation:'isolate'}}>
   <Fonts/><WeddingFoliage phase={phase*Math.max(1,Math.round(total/30/7.5))} time={time}/>
   <svg width="0" height="0" aria-hidden="true" style={{position:'absolute'}}><defs>
