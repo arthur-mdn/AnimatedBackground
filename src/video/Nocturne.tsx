@@ -1,6 +1,5 @@
 import {cssRGB} from '../shared/color';
-import {nocturnePalettes} from '../shared/nocturne';
-import {NocturnePalette,useNocturneColor,useNocturnePalette} from './NocturnePalette';
+import {NocturnePalette,useNocturneColor,useNocturnePalette,useNocturneSettings} from './NocturnePalette';
 import {useEffect,useState} from 'react';
 import {AbsoluteFill,useCurrentFrame,useVideoConfig,delayRender,continueRender} from 'remotion';
 import type {BirthdayInput} from '../shared/config';
@@ -11,7 +10,7 @@ import {cycle,reveal} from './timing';
 const seed=(i:number)=>{const n=Math.sin(i*127.1+311.7)*43758.5453;return n-Math.floor(n);};
 export function NocturneBackdrop({phase=0,cover=false}:{phase?:number;cover?:boolean}){
  const color=useNocturneColor(),paletteId=useNocturnePalette();
- const palette=nocturnePalettes.find(p=>p.id===paletteId)!;
+ const palette=useNocturneSettings();
  const [red,green,blue]=paletteId==='bleu-nuit'?[.42,.52,.72]:cssRGB(color('#6b85b8'));
  return <svg viewBox="0 0 1920 1080" preserveAspectRatio={cover?'xMidYMid slice':'xMidYMid meet'} width="100%" height="100%" style={{position:'absolute',inset:0}} aria-hidden="true">
  <defs>
@@ -60,7 +59,7 @@ export function NocturneBackdrop({phase=0,cover=false}:{phase?:number;cover?:boo
  {Array.from({length:8},(_,i)=>{const x=100+seed(i+1400)*1720,y=100+seed(i+1500)*850,a=.15+.45*Math.pow(.5+.5*Math.sin(phase*2+i*2),6);return <g key={i} transform={`translate(${x} ${y})`} opacity={a} fill={color('#e0edff')}><path d="M0-12 2-2 12 0 2 2 0 12-2 2-12 0-2-2Z"/><circle r="8" opacity=".35" filter="url(#night-glow)"/></g>;})}
  </svg>;
 }
-export function Nocturne(props:BirthdayInput){return <NocturnePalette palette={props.nocturnePalette}><NocturneScene {...props}/></NocturnePalette>;}
+export function Nocturne(props:BirthdayInput){return <NocturnePalette palette={props.nocturnePalette} customColor={props.nocturneColor}><NocturneScene {...props}/></NocturnePalette>;}
 function NocturneScene(props:BirthdayInput){
  const color=useNocturneColor();
  const frame=useCurrentFrame(),{durationInFrames:total}=useVideoConfig(),phase=cycle(frame,total);

@@ -1,4 +1,5 @@
-export const nocturnePaletteIds=['bleu-nuit','rouge-couchant','orange-crepuscule','violet-astral','vert-boreal','rose-aurore'] as const;
+import {hexHsl} from './color';
+export const nocturnePaletteIds=['bleu-nuit','rouge-couchant','orange-crepuscule','violet-astral','vert-boreal','rose-aurore','custom'] as const;
 export type NocturnePaletteId=typeof nocturnePaletteIds[number];
 export const nocturnePalettes=[
  {id:'bleu-nuit',name:'Bleu nuit',swatch:'#20366F',hue:225,lightHue:215,horizon:'#31569c'},
@@ -8,3 +9,9 @@ export const nocturnePalettes=[
  {id:'vert-boreal',name:'Vert boréal',swatch:'#317C76',hue:172,lightHue:151,horizon:'#48a395'},
  {id:'rose-aurore',name:'Rose aurore',swatch:'#AA5F88',hue:325,lightHue:351,horizon:'#cc7d8f'},
 ] as const;
+
+export function resolveNocturnePalette(id:NocturnePaletteId,customColor='#20366F'){
+ if(id!=='custom')return nocturnePalettes.find(p=>p.id===id)!;
+ const tone=hexHsl(customColor),lightHue=(tone.h+12)%360;
+ return {id,name:'Personnalisée',swatch:customColor,hue:tone.h,lightHue,horizon:`hsl(${lightHue} ${tone.s*100}% ${25+tone.l*30}%)`};
+}
