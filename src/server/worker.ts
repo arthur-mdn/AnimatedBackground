@@ -33,7 +33,7 @@ try{
  }
  if(!reusedExport){
   await Promise.all(['alex-brush-latin-400-normal.woff2','alex-brush-latin-ext-400-normal.woff2','bodoni-moda-latin-700-normal.woff2','bodoni-moda-latin-ext-700-normal.woff2'].map(f=>access(resolve('public/fonts',f))));
-  if(input.templateId==='jardin-mariage')await access(resolve('public/media/wedding-bird-loop.mp4'));
+  if(input.templateId==='jardin-mariage')await Promise.all([access(resolve('public/media/wedding-bird-loop.mp4')),access(resolve('public/fonts/apple-chancery.ttf'))]);
   const browserExecutable=process.env.CHROME_PATH||undefined;
   const serveUrl=process.env.RENDER_BUNDLE_DIR||await bundle({entryPoint:resolve('src/video/Root.tsx'),publicDir:resolve('public')});
   checkCancelled();
