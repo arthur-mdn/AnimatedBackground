@@ -55,7 +55,8 @@ export function traceGlyph(source:Uint8Array,width:number,height:number):BrushSt
    // A Q-like loop should start on its bowl, rather than at the lower tail.
    const tailOnly=previous===undefined&&endpoints.length>0&&endpoints.every(i=>Math.floor(i/width)>top+(bottom-top)*.35);
    const candidates=endpoints.length&&!tailOnly?endpoints:available;
-   candidates.sort((a,b)=>previous===undefined?(Math.floor(a/width)+a%width*.25)-(Math.floor(b/width)+b%width*.25):Math.hypot(a%width-previous%width,Math.floor(a/width)-Math.floor(previous/width))-Math.hypot(b%width-previous%width,Math.floor(b/width)-Math.floor(previous/width)));
+   // Open strokes start at the leftmost tip (then highest) so cursive draws left-to-right.
+   candidates.sort((a,b)=>previous===undefined?(a%width-b%width)||(Math.floor(a/width)-Math.floor(b/width)):Math.hypot(a%width-previous%width,Math.floor(a/width)-Math.floor(previous/width))-Math.hypot(b%width-previous%width,Math.floor(b/width)-Math.floor(previous/width)));
    let current=candidates[0],last:number|undefined,length=0;const points:Array<[number,number]>=[[current%width,Math.floor(current/width)]];
    while(true){
     const next=nodes.get(current)!.filter(n=>!edges.has(key(current,n)));
@@ -67,6 +68,9 @@ export function traceGlyph(source:Uint8Array,width:number,height:number):BrushSt
      return ((b%width-current%width)*dx+(Math.floor(b/width)-Math.floor(current/width))*dy)-((a%width-current%width)*dx+(Math.floor(a/width)-Math.floor(current/width))*dy);
     });
     const n=next[0];edges.add(key(current,n));length+=Math.hypot(n%width-current%width,Math.floor(n/width)-Math.floor(current/width));last=current;current=n;points.push([current%width,Math.floor(current/width)]);
+   }
+   if(previous===undefined&&endpoints.length>0&&!tailOnly&&points.length>1&&points[0][0]>points[points.length-1][0]){
+    points.reverse();current=Math.round(points[points.length-1][1])*width+Math.round(points[points.length-1][0]);
    }
    previous=current;if(points.length>1)strokes.push({points,length});
   }

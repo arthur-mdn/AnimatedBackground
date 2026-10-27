@@ -17,6 +17,12 @@ test('Les éléments détachés du glyphe sont tracés après son corps',()=>{
  const strokes=traceGlyph(pixels,width,height);assert.ok(strokes.length>=2);
  assert.ok(strokes[0].points.every(([,y])=>y>=10));assert.ok(strokes.at(-1)!.points.every(([,y])=>y<6));
 });
+test('Un trait ouvert se dessine de gauche à droite',()=>{
+ const width=40,height=16,pixels=new Uint8Array(width*height);
+ for(let x=4;x<36;x++)for(let y=6;y<10;y++)pixels[y*width+x]=1;
+ const strokes=traceGlyph(pixels,width,height);assert.equal(strokes.length,1);
+ assert.ok(strokes[0].points[0][0]<strokes[0].points.at(-1)![0]);
+});
 test('Un contour fermé et une lettre absente terminent leur tracé',()=>{
  const width=24,height=24,pixels=new Uint8Array(width*height);
  for(let y=4;y<20;y++)for(let x=4;x<20;x++)if(x<8||x>15||y<8||y>15)pixels[y*width+x]=1;
