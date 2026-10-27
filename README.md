@@ -31,7 +31,7 @@ Le rendu s’effectue sur la machine qui héberge l’application : votre ordina
 
 Créé initialement pour [Private Events](https://privateevents.fr/), le générateur est accessible gratuitement, sans compte. Son utilisation et la diffusion des vidéos créées sont libres et autorisées pour vos événements, y compris ceux que vous organisez pour d’autres personnes.
 
-Les réglages du formulaire sont mémorisés dans le navigateur. Au lancement d’une génération, ils sont transmis au serveur pour produire la vidéo. Les exports et des copies en cache y sont conservés ; les exports n’ont actuellement pas de délai d’effacement automatique. La rubrique **Confidentialité & RGPD**, accessible depuis le footer, détaille ce fonctionnement et le contact pour les demandes liées aux données.
+Les réglages du formulaire sont mémorisés dans le navigateur. Au lancement d’une génération, ils sont transmis au serveur pour produire la vidéo. Les exports et les caches personnalisés sont conservés au plus 24 heures par défaut (hors rendu ou téléchargement en cours), et peuvent être supprimés plus tôt pour respecter le budget de stockage. Un cookie technique de session réserve l’accès aux rendus à leur visiteur. La rubrique **Confidentialité & RGPD**, accessible depuis le footer, détaille ce fonctionnement et le contact pour les demandes liées aux données.
 
 ## Démarrer avec Docker
 
@@ -51,7 +51,7 @@ docker compose logs -f atelier
 docker compose down
 ```
 
-Les exports et le cache restent dans le volume Docker. Téléchargez vos vidéos avant de redémarrer l’application : les liens de téléchargement des tâches ne survivent pas au redémarrage, même si les fichiers sont conservés.
+Les fichiers restent dans le volume Docker, dans les limites de rétention et de stockage configurées. Téléchargez vos vidéos avant de redémarrer l’application : les liens de téléchargement des tâches ne survivent pas au redémarrage, même si les fichiers sont conservés.
 
 ## Déployer sur un serveur
 
@@ -59,7 +59,9 @@ Le fichier `docker-compose.prod.yml` fournit une configuration de production aut
 
 Il nécessite un **Traefik existant**, une entrée HTTPS `websecure` et un résolveur de certificats `myresolver`. Aucun port applicatif n’est publié sur l’hôte. Adaptez le domaine et ces labels à votre infrastructure avant de réutiliser la configuration pour une autre installation.
 
-Faites pointer le DNS A, et AAAA si utilisé, vers votre serveur, puis lancez depuis le dépôt :
+Faites pointer le DNS A, et AAAA si utilisé, vers votre serveur. Créez un fichier `.env` à partir de `.env.example`, puis générez une clé de session avec `openssl rand -hex 32` et renseignez `SESSION_SECRET`. La configuration de production exige cette clé ; ne la publiez pas dans Git.
+
+Lancez ensuite depuis le dépôt :
 
 ```bash
 docker compose -f docker-compose.prod.yml config --quiet
@@ -115,7 +117,33 @@ docker compose exec atelier npm run cache:warm -- --model=aquarelle --all-palett
 
 Ces commandes génèrent également des vidéos de démonstration. En production, ajoutez `-f docker-compose.prod.yml` après `docker compose`.
 
-Le cache retire les éléments les moins récemment utilisés lorsque son budget disque est dépassé. Les exports destinés au téléchargement restent conservés indépendamment de ce nettoyage.
+Le cache retire les éléments les moins récemment utilisés lorsque son budget disque est dépassé. Les exports destinés au téléchargement restent soumis à leur délai de rétention et au budget global de stockage.
+
+## Protections pour une instance publique
+
+Les rendus sont associés à une session anonyme signée, sans compte utilisateur. Les endpoints de suivi, d’annulation et de téléchargement vérifient cette session. Le contrôle de santé n’expose aucun identifiant de rendu aux autres visiteurs. Les erreurs internes du moteur ne sont pas renvoyées au navigateur.
+
+| Paramètre | Valeur par défaut | Protection |
+| --- | --- | --- |
+| `SESSION_SECRET` | Obligatoire en Compose production | Signature du cookie de session ; au moins 32 octets aléatoires. |
+| `SESSION_GENERATIONS_PER_HOUR` | `5` | Générations par session et par fenêtre d’une heure. |
+| `IP_GENERATIONS_PER_HOUR` | `10` | Générations par adresse réseau et par fenêtre d’une heure. |
+| `GLOBAL_GENERATIONS_PER_HOUR` | `30` | Générations acceptées pour toute l’instance par fenêtre d’une heure. |
+| `RENDER_TIMEOUT_SECONDS` | `2700` | Arrêt d’un rendu après 45 minutes, y compris ses sous-processus. |
+| `EXPORT_RETENTION_HOURS` | `24` | Rétention des exports et caches personnalisés. |
+| `OUTPUT_MAX_MB` | `20480` | Budget global des exports, caches et fichiers temporaires de rendu. |
+| `MIN_FREE_DISK_MB` | `2048` | Réserve minimale d’espace disque avant de lancer ou poursuivre un rendu. |
+| `TRUST_PROXY_CIDRS` | Vide | Adresses ou réseaux des proxys explicitement autorisés à fournir l’adresse client. |
+
+L’API est aussi limitée à 120 requêtes par minute et par adresse réseau. Les limites de génération sont cumulatives ; créer un nouveau cookie ne contourne pas la limite réseau. Elles sont conservées en mémoire et repartent à zéro au redémarrage. Une seule génération peut fonctionner à la fois.
+
+**Derrière Traefik**, renseignez `TRUST_PROXY_CIDRS` avec son adresse IP Docker fixe ou un réseau dédié ne contenant que vos proxys de confiance. Sans ce réglage, les visiteurs passant par le même proxy partagent la limite réseau : c’est restrictif mais évite de faire confiance à un en-tête falsifié. Ne configurez pas une confiance globale dans les en-têtes `X-Forwarded-For`. Le port applicatif doit rester inaccessible depuis Internet et Traefik doit conserver son filtrage des en-têtes transférés.
+
+Le stockage est vérifié avant chaque rendu et toutes les 5 secondes. Les fichiers expirés sont nettoyés au démarrage et périodiquement lorsque le moteur est libre ; les téléchargements en cours sont protégés. Un manque d’espace ou un dépassement du budget interrompt le rendu. Ce contrôle applicatif peut laisser un dépassement temporaire entre deux vérifications : utilisez également un quota de système de fichiers ou un volume dédié et surveillez le disque sur un VPS partagé. La réserve disque s’applique aussi au préchauffage.
+
+Le cookie est `HttpOnly`, `SameSite=Strict`, et `Secure` lorsque `PUBLIC_URL` est en HTTPS. Les durées mentionnées dans la rubrique de confidentialité correspondent aux valeurs de production par défaut ; adaptez cette rubrique si vous modifiez la rétention ou la durée de session. La limitation applicative ne remplace pas une protection contre les attaques distribuées au niveau du proxy.
+
+Les commandes `cache:warm` utilisent une session technique soumise aux mêmes limites et attendent si un quota est atteint. Une session doit être initialisée via `GET /api/health` pour tout client API personnalisé, puis son cookie doit être conservé pour les requêtes suivantes.
 
 ## Développement
 

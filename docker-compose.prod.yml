@@ -15,12 +15,22 @@ services:
       HOST: 0.0.0.0
       PORT: "3001"
       PUBLIC_URL: https://animatedbackground.privateevents.fr
+      SESSION_SECRET: ${SESSION_SECRET:?Définir SESSION_SECRET avec au moins 32 caractères aléatoires}
+      TRUST_PROXY_CIDRS: ${TRUST_PROXY_CIDRS:-}
+      SESSION_GENERATIONS_PER_HOUR: ${SESSION_GENERATIONS_PER_HOUR:-5}
+      IP_GENERATIONS_PER_HOUR: ${IP_GENERATIONS_PER_HOUR:-10}
+      GLOBAL_GENERATIONS_PER_HOUR: ${GLOBAL_GENERATIONS_PER_HOUR:-30}
+      RENDER_TIMEOUT_SECONDS: ${RENDER_TIMEOUT_SECONDS:-2700}
+      EXPORT_RETENTION_HOURS: ${EXPORT_RETENTION_HOURS:-24}
+      OUTPUT_MAX_MB: ${OUTPUT_MAX_MB:-20480}
+      MIN_FREE_DISK_MB: ${MIN_FREE_DISK_MB:-2048}
       RENDER_CACHE_MAX_MB: ${RENDER_CACHE_MAX_MB:-8192}
     volumes:
       - exports:/app/output
     shm_size: 1gb
     mem_limit: ${APP_MEMORY_LIMIT:-4g}
     cpus: ${APP_CPUS:-2.0}
+    pids_limit: 512
     stop_grace_period: 30s
     cap_drop:
       - ALL
