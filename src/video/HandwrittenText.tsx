@@ -44,7 +44,7 @@ function glyphBrush(char:string,context:CanvasRenderingContext2D,font:string,str
 }
 // The brush reveals a supersampled glyph image. Mask bounds follow the brush
 // radius so stroke caps are never clipped mid-draw.
-export function HandwrittenText({text,trailing,fontSize,maxWidth,frame,total,start,length,fontFamily='GardenNames',fontWeight=400,letterSpacing=0,textStrokeWidth=0}:{text:string;trailing?:{text:string;start:number;length:number};fontSize:number;maxWidth:number;frame:number;total:number;start:number;length:number;fontFamily?:string;fontWeight?:number;letterSpacing?:number;textStrokeWidth?:number}){
+export function HandwrittenText({text,trailing,fontSize,maxWidth,frame,total,start,length,fontFamily='GardenNames',fontWeight=400,letterSpacing=0,textStrokeWidth=0,fill='currentColor'}:{text:string;trailing?:{text:string;start:number;length:number};fontSize:number;maxWidth:number;frame:number;total:number;start:number;length:number;fontFamily?:string;fontWeight?:number;letterSpacing?:number;textStrokeWidth?:number;fill?:string}){
  const {delayRender,continueRender,cancelRender}=useDelayRender();
  const font=`${fontWeight} ${SIZE}px ${fontFamily}`;
  const trailingText=trailing?.text||'';
@@ -69,9 +69,9 @@ export function HandwrittenText({text,trailing,fontSize,maxWidth,frame,total,sta
  },[text,trailingText,fontSize,maxWidth,font,letterSpacing,textStrokeWidth]);
  const progresses=[writingProgress(frame,total,start,length),trailing?writingProgress(frame,total,trailing.start,trailing.length):0];
  if(!layout)return <div style={{height:fontSize*1.25}}/>;
- const pens=layout.lengths.map((length,i)=>progresses[i]*length),tint=`${id}-tint`;
+ const pens=layout.lengths.map((length,i)=>progresses[i]*length),tint=`${id}-tint-${fill.replace(/[^a-zA-Z0-9]+/g,'')}`;
  return <svg role="img" aria-label={text+trailingText} width={layout.width+128} height={fontSize*1.25} viewBox={`-64 0 ${layout.width+128} ${fontSize*1.25}`} style={{overflow:'visible',verticalAlign:'top'}}>
-  <defs><filter id={tint} x="-50%" y="-50%" width="200%" height="200%" filterUnits="objectBoundingBox" colorInterpolationFilters="sRGB"><feFlood floodColor="currentColor" result="fill"/><feComposite in="fill" in2="SourceAlpha" operator="in"/></filter></defs>
+  <defs><filter id={tint} x="-50%" y="-50%" width="200%" height="200%" filterUnits="objectBoundingBox" colorInterpolationFilters="sRGB"><feFlood floodColor={fill} result="fill"/><feComposite in="fill" in2="SourceAlpha" operator="in"/></filter></defs>
   {layout.glyphs.map(({x,glyph,offset,part},i)=>{
    const advance=pens[part]-offset,complete=progresses[part]===1||advance>=glyph.length;
    if(advance<=0)return null;

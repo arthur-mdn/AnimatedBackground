@@ -51,10 +51,10 @@ export function Wedding(props:BirthdayInput){
    <TypingText text={props.weddingMessage} fontSize={82} singleLine maxWidth={1260} frame={frame} total={total} start={0} length={1.2}/>
   </div>}
   <div style={{position:'absolute',left:270,right:270,top:props.weddingMessage?310:270,textAlign:'center'}}>
-   <HandwrittenText text={names[0]} trailing={{text:' &',...WEDDING_WRITING.ampersand}} fontSize={230} maxWidth={1280} frame={frame} total={total} {...WEDDING_WRITING.firstName}/>
+   <HandwrittenText text={names[0]} trailing={{text:' &',...WEDDING_WRITING.ampersand}} fill={palette.text} fontSize={230} maxWidth={1280} frame={frame} total={total} {...WEDDING_WRITING.firstName}/>
   </div>
   <div style={{position:'absolute',left:270,right:270,top:props.weddingMessage?505:470,textAlign:'center'}}>
-   <HandwrittenText text={names[1]} fontSize={230} maxWidth={1280} frame={frame} total={total} {...WEDDING_WRITING.secondName}/>
+   <HandwrittenText text={names[1]} fill={palette.text} fontSize={230} maxWidth={1280} frame={frame} total={total} {...WEDDING_WRITING.secondName}/>
   </div>
   <div style={{position:'absolute',left:350,right:350,top:795,textAlign:'center',color:palette.secondary,...appear(WEDDING_WRITING.date.start)}}>
    <TypingText text={formatWeddingDate(props.weddingDate)} fontSize={78} singleLine maxWidth={1220} frame={frame} total={total} start={WEDDING_WRITING.date.start} length={1}/>
