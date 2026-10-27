@@ -12,10 +12,32 @@ function grain(index:number,salt:number){
 }
 
 function YearsLabel({x}:{x:number}){
- const color=useWatercolorColor();
+ const fill=useWatercolorColor()('#c49a59');
  const frame=useCurrentFrame(),{durationInFrames}=useVideoConfig();
  const opacity=reveal(frame,durationInFrames,APPEARANCE.years.start,APPEARANCE.years.fade);
- return <text x={x} y="339" fontFamily="Celebration, cursive" fontSize="126" fill={color('#c49a59')} opacity={opacity} transform={`translate(0 ${(1-opacity)*6})`}>ans</text>;
+ const {delayRender,continueRender,cancelRender}=useDelayRender();
+ const [sprite,setSprite]=useState<{href:string;width:number;height:number;origin:number;baseline:number}|null>(null);
+ useEffect(()=>{
+  const handle=delayRender('Rasterisation du libellé ans');
+  let disposed=false;
+  document.fonts.load('126px Celebration').then(()=>{
+   if(disposed)return;
+   const canvas=document.createElement('canvas');
+   const context=canvas.getContext('2d');
+   if(!context)throw Error('Rasterisation du libellé indisponible.');
+   context.font='126px Celebration';
+   const metrics=context.measureText('ans'),pad=16;
+   const origin=pad+Math.ceil(metrics.actualBoundingBoxLeft),baseline=pad+Math.ceil(metrics.actualBoundingBoxAscent);
+   canvas.width=Math.ceil(metrics.actualBoundingBoxLeft+metrics.actualBoundingBoxRight)+pad*2;
+   canvas.height=Math.ceil(metrics.actualBoundingBoxAscent+metrics.actualBoundingBoxDescent)+pad*2;
+   context.font='126px Celebration';context.fillStyle=fill;context.fillText('ans',origin,baseline);
+   flushSync(()=>setSprite({href:canvas.toDataURL('image/png'),width:canvas.width,height:canvas.height,origin,baseline}));
+   continueRender(handle);
+  }).catch(cancelRender);
+  return()=>{disposed=true;continueRender(handle);};
+ },[fill]);
+ if(!sprite)return null;
+ return <image href={sprite.href} x={x-sprite.origin} y={339-sprite.baseline} width={sprite.width} height={sprite.height} opacity={opacity}/>;
 }
 
 // Native SVG text stays editable. The patterned face is clipped by the glyphs;
