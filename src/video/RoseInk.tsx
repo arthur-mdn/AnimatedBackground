@@ -1,7 +1,8 @@
 import {watercolorRGB,useWatercolorBase,useWatercolorColor} from './WatercolorPalette';
-import {Img,staticFile,useCurrentFrame,useVideoConfig} from 'remotion';
+import {Img,useCurrentFrame,useVideoConfig} from 'remotion';
 import {smooth} from './timing';
 import {GoldNuggets} from './GoldNuggets';
+import {useVideoAsset,useClientRasterScale} from './ClientRendering';
 import {mixColors,cssRGB} from '../shared/color';
 import {useLightweightPreview} from './PreviewPerformance';
 
@@ -60,6 +61,7 @@ function PreviewInkCorner({id,spread,water,edge,showGoldNuggets,opposite=false}:
 
 function InkCorner({id,spread,water,edge,showGoldNuggets,opposite=false}:{id:string;spread:number;water:ReturnType<typeof inkWaterMotion>;edge:ReturnType<typeof inkWaterMotion>;showGoldNuggets:boolean;opposite?:boolean}){
  const color=useWatercolorColor(),base=useWatercolorBase(),lightweight=useLightweightPreview();
+ const bleedTexture=useVideoAsset(`textures/ink-noise-${opposite?47:23}.png`),pigmentTexture=useVideoAsset(`textures/ink-noise-${opposite?11:31}.png`);
  if(lightweight)return <PreviewInkCorner id={id} spread={spread} water={water} edge={edge} showGoldNuggets={showGoldNuggets} opposite={opposite}/>;
  const paper=color('#fff1e9');
  const diluted=(hex:string,amount=spread*.58)=>mixColors(color(hex),paper,amount);
@@ -74,19 +76,19 @@ function InkCorner({id,spread,water,edge,showGoldNuggets,opposite=false}:{id:str
    <stop offset=".85" stopColor={diluted('#de929a')} stopOpacity=".58"/><stop offset="1" stopColor={diluted('#f1b8b9')} stopOpacity=".58"/>
   </radialGradient>
   <filter id={`${id}-bleed`} x="-20%" y="-20%" width="140%" height="140%" colorInterpolationFilters="sRGB">
-   <feImage href={staticFile(`textures/ink-noise-${opposite?47:23}.png`)} x="-350" y="-350" width="1600" height="1600" preserveAspectRatio="none" result="grain"/>
+   <feImage href={bleedTexture} x="-350" y="-350" width="1600" height="1600" preserveAspectRatio="none" result="grain"/>
    <feOffset in="grain" dx={edge.x} dy={edge.y} result="flow"/>
    <feDisplacementMap in="SourceGraphic" in2="flow" scale={42} xChannelSelector="R" yChannelSelector="G"/>
    <feGaussianBlur stdDeviation=".55"/>
   </filter>
   <filter id={`${id}-rim`} x="-20%" y="-20%" width="140%" height="140%" colorInterpolationFilters="sRGB">
-   <feImage href={staticFile(`textures/ink-noise-${opposite?47:23}.png`)} x="-350" y="-350" width="1600" height="1600" preserveAspectRatio="none" result="rim-grain"/>
+   <feImage href={bleedTexture} x="-350" y="-350" width="1600" height="1600" preserveAspectRatio="none" result="rim-grain"/>
    <feOffset in="rim-grain" dx={edge.x} dy={edge.y} result="rim-flow"/>
    <feDisplacementMap in="SourceGraphic" in2="rim-flow" scale="42" xChannelSelector="R" yChannelSelector="G"/>
    <feGaussianBlur stdDeviation="2.6"/>
   </filter>
   <filter id={`${id}-texture`} x="0" y="0" width="100%" height="100%" colorInterpolationFilters="sRGB">
-   <feImage href={staticFile(`textures/ink-noise-${opposite?11:31}.png`)} x="-350" y="-350" width="1600" height="1600" preserveAspectRatio="none" result="pigment-grain"/>
+   <feImage href={pigmentTexture} x="-350" y="-350" width="1600" height="1600" preserveAspectRatio="none" result="pigment-grain"/>
    <feOffset in="pigment-grain" dx={water.x} dy={water.y}/>
    <feColorMatrix type="matrix" values={`0 0 0 0 ${red}  0 0 0 0 ${green}  0 0 0 0 ${blue}  0 0 0 .48 -.13`}/>
   </filter>
@@ -111,13 +113,15 @@ function InkCorner({id,spread,water,edge,showGoldNuggets,opposite=false}:{id:str
  </g>;
 }
 
+function TexturePreload({seed}:{seed:number}){const src=useVideoAsset(`textures/ink-noise-${seed}.png`);return <Img src={src} style={{display:'none'}}/>;}
+
 export function RoseInk({showGoldNuggets}:{showGoldNuggets:boolean}){
- const frame=useCurrentFrame(),{durationInFrames}=useVideoConfig(),lightweight=useLightweightPreview();
+ const frame=useCurrentFrame(),{durationInFrames}=useVideoConfig(),lightweight=useLightweightPreview(),rasterScale=useClientRasterScale();
  const spread=inkSpread(frame,durationInFrames);
  const water=inkWaterMotion(frame,durationInFrames);
  const edgeDrift=inkEdgeMotion(frame,durationInFrames);
  const edge={x:water.x+edgeDrift.x,y:water.y+edgeDrift.y,phase:water.phase+edgeDrift.phase};
- return <>{!lightweight&&[23,47,11,31].map(seed=><Img key={seed} src={staticFile(`textures/ink-noise-${seed}.png`)} style={{display:'none'}}/>) }<svg width="1920" height="1080" viewBox="0 0 1920 1080" style={{position:'absolute',inset:0}} aria-hidden="true">
+ return <>{!lightweight&&[23,47,11,31].map(seed=><TexturePreload key={seed} seed={seed}/>) }<svg data-client-raster="ink" width={1920*rasterScale} height={1080*rasterScale} viewBox="0 0 1920 1080" style={{position:'absolute',inset:0,transform:rasterScale===1?undefined:`scale(${1/rasterScale})`,transformOrigin:'top left'}} aria-hidden="true">
   <InkCorner id="ink-top" spread={spread} water={water} edge={edge} showGoldNuggets={showGoldNuggets}/>
   <InkCorner id="ink-bottom" spread={spread} water={water} edge={edge} showGoldNuggets={showGoldNuggets} opposite/>
  </svg></>;

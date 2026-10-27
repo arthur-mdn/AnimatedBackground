@@ -1,0 +1,6 @@
+import type {ClientExportState} from './ClientExport';
+
+export function ExportLocation({state,disabled}:{state:Pick<ClientExportState,'serverAvailable'|'capability'|'mode'|'setMode'|'ready'>;disabled:boolean}){
+ if(!state.serverAvailable)return <p className="export-local-note" role="status">{state.capability==='checking'?'Vérification de l’export sur cet appareil…':'La vidéo est générée sur votre appareil. Gardez cet onglet ouvert.'}</p>;
+ return <div className="export-location"><span>Génération de la vidéo</span><div role="group" aria-label="Lieu de génération">{([{id:'client',name:'Sur cet appareil'},{id:'server',name:'Sur le serveur'}] as const).map(option=><button type="button" key={option.id} aria-pressed={state.mode===option.id} disabled={disabled||(option.id==='client'&&!state.ready)} onClick={()=>state.setMode(option.id)}>{option.name}</button>)}</div><p>{state.capability==='unsupported'?'L’export local est incompatible avec ce navigateur. Vous pouvez choisir le serveur.':state.mode==='client'?'Les textes et le MP4 sont calculés ici, sans envoyer votre formulaire au serveur. Gardez cet onglet ouvert.':'Le serveur calcule et conserve temporairement votre vidéo.'}</p></div>;
+}

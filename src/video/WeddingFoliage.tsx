@@ -1,5 +1,6 @@
 import {useGardenColor} from './GardenPalette';
 import {smooth} from './timing';
+import {useClientRendering,useClientRasterScale} from './ClientRendering';
 import {useLightweightPreview} from './PreviewPerformance';
 const random=(n:number)=>{const v=Math.sin(n*127.1+31.7)*43758.5453;return v-Math.floor(v);};
 // Sample the same Bézier curve used by the stem, including its local direction.
@@ -43,11 +44,11 @@ function Twig({phase,time,index,angle,x,y,scale=1}:{phase:number;time:number;ind
 }
 // Without a timeline the model card shows the fully opened foliage.
 export function WeddingFoliage({phase=0,time=Infinity,compact=false}:{phase?:number;time?:number;compact?:boolean}){
- const color=useGardenColor(),lightweight=useLightweightPreview();
- return <svg viewBox={`0 0 ${compact?1080:1920} 1080`} width="100%" height="100%" preserveAspectRatio="xMidYMid slice" style={{position:'absolute',inset:0}} aria-hidden="true">
+ const color=useGardenColor(),lightweight=useLightweightPreview(),clientRendering=useClientRendering(),rasterScale=useClientRasterScale();
+ return <svg data-client-raster={clientRendering?'foliage':undefined} viewBox={`0 0 ${compact?1080:1920} 1080`} width={clientRendering?1920*rasterScale:'100%'} height={clientRendering?1080*rasterScale:'100%'} preserveAspectRatio="xMidYMid slice" style={{position:'absolute',inset:0,transform:rasterScale===1?undefined:`scale(${1/rasterScale})`,transformOrigin:'top left'}} aria-hidden="true">
  <defs>
  {[['#bbc9a8','#6e916a'],['#d0d9bc','#819e78'],['#a6bd91','#587b57']].map(([light,dark],i)=><linearGradient key={i} id={`wedding-leaf-${i}`} x1="0" y1="0" x2="1" y2=".8"><stop stopColor={color(light)}/><stop offset=".52" stopColor={color(dark)}/><stop offset="1" stopColor={color("#d8dfc6")}/></linearGradient>)}
- <filter id="wedding-leaf-soft" x="-10%" y="-10%" width="120%" height="120%"><feTurbulence type="fractalNoise" baseFrequency=".045" numOctaves="2" seed="18" result="leaf-grain"/><feDisplacementMap in="SourceGraphic" in2="leaf-grain" scale="2.5" xChannelSelector="R" yChannelSelector="G"/><feGaussianBlur stdDeviation=".35"/></filter>
+ <filter id="wedding-leaf-soft" x="-10%" y="-10%" width="120%" height="120%">{!clientRendering&&<><feTurbulence type="fractalNoise" baseFrequency=".045" numOctaves="2" seed="18" result="leaf-grain"/><feDisplacementMap in="SourceGraphic" in2="leaf-grain" scale="2.5" xChannelSelector="R" yChannelSelector="G"/></>}<feGaussianBlur stdDeviation=".35"/></filter>
  </defs>
  {[false,true].map((bottom)=><g key={String(bottom)} transform={bottom?`translate(${compact?1080:1920} 1080) rotate(180)`:undefined} opacity=".9" filter={lightweight?undefined:"url(#wedding-leaf-soft)"}>
   <g transform={`translate(${-42-(1-smooth(time/3))*185} ${-20-(1-smooth(time/3))*135}) scale(${compact?1.1:1.5})`}>

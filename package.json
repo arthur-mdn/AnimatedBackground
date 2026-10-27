@@ -9,7 +9,9 @@
     "start": "node dist/server/index.js",
     "typecheck": "tsc --noEmit",
     "test": "node --import tsx --test tests/*.test.ts",
-    "cache:warm": "node --import tsx scripts/warm-cache.mjs"
+    "cache:warm": "node --import tsx scripts/warm-cache.mjs",
+    "backgrounds:prepare": "node --import tsx scripts/prepare-client-backgrounds.mjs",
+    "assets:client": "node scripts/build-client-assets.mjs"
   },
   "dependencies": {
     "@fontsource/alex-brush": "^5.3.0",
@@ -18,8 +20,11 @@
     "@fontsource/great-vibes": "^5.2.0",
     "@fontsource/outfit": "^5.3.0",
     "@remotion/bundler": "4.0.538",
+    "@remotion/fonts": "4.0.538",
+    "@remotion/media": "4.0.538",
     "@remotion/player": "4.0.538",
     "@remotion/renderer": "4.0.538",
+    "@remotion/web-renderer": "4.0.538",
     "express": "^5.1.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",

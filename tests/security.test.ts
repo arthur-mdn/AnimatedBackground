@@ -128,3 +128,18 @@ test('Expiration : les endpoints refusent une tâche expirée même avec la bonn
  await new Promise(r=>setTimeout(r,300));
  for(const [path,method]of [[`/api/jobs/${job.id}`,'GET'],[`/api/jobs/${job.id}`,'DELETE'],[`/api/jobs/${job.id}/download`,'GET']])assert.equal((await request(path,a,method)).status,404);
 });
+
+test('Décors publics : aucun accès aux exports personnels et prise en charge des requêtes vidéo partielles',async t=>{
+ const {request,out,config}=await setup(t);
+ const folder=join(out,'client-backgrounds','version');await mkdir(folder,{recursive:true});
+ await writeFile(join(out,'client-backgrounds','manifest.json'),JSON.stringify({version:'version',assets:[]}));
+ await writeFile(join(folder,'background.mp4'),Buffer.alloc(2048,1));
+ const manifest=await request('/client-backgrounds/manifest.json');assert.equal(manifest.status,200);assert.equal(manifest.headers.get('cache-control'),'no-cache');
+ const video=await request('/client-backgrounds/version/background.mp4','','GET',undefined,{Range:'bytes=0-99'});
+ assert.equal(video.status,206);assert.equal((await video.arrayBuffer()).byteLength,100);assert.match(video.headers.get('cache-control')!,/immutable/);
+ assert.equal((await request('/client-backgrounds/missing.mp4')).status,404);
+ assert.equal((await request('/client-backgrounds/.secret')).status,404);
+ assert.equal((await request('/client-backgrounds/manifest.json')).headers.get('set-cookie'),null);
+ const old=new Date(Date.now()-7*86400000);await utimes(join(folder,'background.mp4'),old,old);await cleanStorage(out,config);
+ assert.equal((await request('/client-backgrounds/version/background.mp4')).status,200);
+});

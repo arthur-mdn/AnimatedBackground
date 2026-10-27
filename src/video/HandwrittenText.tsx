@@ -1,5 +1,6 @@
+import {flushSync} from 'react-dom';
 import {useEffect,useId,useState} from 'react';
-import {cancelRender,continueRender,delayRender} from 'remotion';
+import {useDelayRender} from 'remotion';
 import {traceGlyph,writingProgress} from './handwriting';
 import {graphemes} from './timing';
 
@@ -34,6 +35,7 @@ function glyphBrush(char:string,context:CanvasRenderingContext2D,font:string):Gl
 // The brush reveals the filled font, rather than outlining its contours or
 // switching complete letters on. Each glyph has an isolated, variable-width mask.
 export function HandwrittenText({text,trailing,fontSize,maxWidth,frame,total,start,length,fontFamily='GardenNames',fontWeight=400,letterSpacing=0,textStrokeWidth=0}:{text:string;trailing?:{text:string;start:number;length:number};fontSize:number;maxWidth:number;frame:number;total:number;start:number;length:number;fontFamily?:string;fontWeight?:number;letterSpacing?:number;textStrokeWidth?:number}){
+ const {delayRender,continueRender,cancelRender}=useDelayRender();
  const font=`${fontWeight} ${SIZE}px ${fontFamily}`;
  const trailingText=trailing?.text||'';
  const [layout,setLayout]=useState<Layout|null>(null),id=useId().replace(/:/g,'');
@@ -50,7 +52,7 @@ export function HandwrittenText({text,trailing,fontSize,maxWidth,frame,total,sta
     context.font=font;const x=context.measureText(prefix+char).width-context.measureText(char).width+index*spacing;
     const glyph=glyphBrush(char,context,font);glyphs.push({char,x,glyph,part,offset:lengths[part]});lengths[part]+=glyph.length+10;prefix+=char;index++;
    }
-   setLayout({glyphs,width:width*scale,scale,baseline,lengths});continueRender(handle);
+   flushSync(()=>setLayout({glyphs,width:width*scale,scale,baseline,lengths}));continueRender(handle);
   }).catch(error=>{if(!disposed)cancelRender(error);});
   return()=>{disposed=true;continueRender(handle);};
  },[text,trailingText,fontSize,maxWidth,font,letterSpacing]);

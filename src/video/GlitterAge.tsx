@@ -1,6 +1,7 @@
+import {flushSync} from 'react-dom';
 import {useWatercolorColor} from './WatercolorPalette';
 import {memo,useEffect,useState} from 'react';
-import {cancelRender,continueRender,delayRender,useCurrentFrame,useVideoConfig} from 'remotion';
+import {useDelayRender,useCurrentFrame,useVideoConfig} from 'remotion';
 import {APPEARANCE,reveal} from './timing';
 import {useLightweightPreview} from './PreviewPerformance';
 
@@ -21,6 +22,7 @@ function YearsLabel({x}:{x:number}){
 // offset copies, a bevel and a soft shadow create shallow rose-gold extrusion.
 export const GlitterAge=memo(function GlitterAge({age}:{age:number}){
  const color=useWatercolorColor(),lightweight=useLightweightPreview();
+ const {delayRender,continueRender,cancelRender}=useDelayRender();
  const size=String(age).length===3?340:370;
  const [width,setWidth]=useState(String(age).length*220);
  useEffect(()=>{
@@ -31,7 +33,8 @@ export const GlitterAge=memo(function GlitterAge({age}:{age:number}){
    const context=document.createElement('canvas').getContext('2d');
    if(!context)throw Error('Mesure des chiffres indisponible.');
    context.font=`700 ${size}px Portrait`;
-   setWidth(context.measureText(String(age)).width);
+   const measuredWidth=context.measureText(String(age)).width;
+   flushSync(()=>setWidth(measuredWidth));
    continueRender(handle);
   }).catch(cancelRender);
   return()=>{disposed=true;continueRender(handle);};

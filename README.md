@@ -175,3 +175,33 @@ Réalisé avec ❤️ par [Arthur Mondon](https://mondon.pro/).
 Safari et les navigateurs iOS utilisent un aperçu allégé : les filtres animés de diffusion, de bruit et de flou sont remplacés par des formes et des textures préparées. Le feuillage conserve ses mouvements ; la vidéo de l’oiseau utilise une version plus légère avec sa teinte pastel déjà appliquée. Les scintillements et la typographie restent personnalisables.
 
 Ces adaptations concernent uniquement l’aperçu en direct et les vignettes. Les exports MP4 utilisent toujours la composition complète, même si la génération est lancée depuis Safari.
+
+## Export sur l’appareil
+
+Les modèles **Aquarelle, Nocturne et Jardin** génèrent leur MP4 directement dans le navigateur, avec les palettes, couleurs personnalisées, textes et durées du formulaire. Aucun fond préparé n’est requis. Le navigateur doit permettre l’encodage H.264 via WebCodecs ; la compatibilité est vérifiée avant de démarrer.
+
+Le choix du serveur apparaît uniquement si le navigateur est incompatible ou si une tentative d’export local a échoué pour la configuration en cours. Il faut sélectionner explicitement cette solution de repli : aucun formulaire n’est envoyé à l’API de génération automatiquement. Une annulation ne constitue pas un échec et ne révèle pas le choix serveur. Un indicateur temporaire dans le stockage de session permet de proposer le serveur si le navigateur a interrompu ou rechargé la page pendant un export.
+
+Gardez l’onglet ouvert pendant le calcul, puis téléchargez le MP4 avant de fermer la page. Le fichier est encodé en H.264, en Full HD, à 30 images/s, sans audio, avec un débit cible de 12 Mbit/s. La vitesse et le débit réellement obtenu dépendent de l’appareil et de son encodeur. Un contournement ciblé utilise le mode H.264 `realtime` sur WebKit pour éviter [le blocage connu de Safari](https://github.com/remotion-dev/remotion/issues/11964).
+
+Les textes devenus immobiles sont rasterisés une seule fois en pleine résolution pendant le temps de lecture. Les effets du décor continuent de bouger. Les textures de l’encre sont embarquées dans le SVG pendant le calcul et utilisent des dérivés WebP de 512 pixels. Un nettoyage ciblé libère les images SVG de décor remplacées à chaque image sur WebKit, dont le cache peut autrement saturer la mémoire. Pour limiter la mémoire sur Safari et iOS, les décors sont rasterisés en 960 × 540 puis agrandis ; les textes restent calculés en 1920 × 1080. La microdéformation granuleuse des feuilles est allégée pendant l’export local ; leurs mouvements et leur léger flou sont conservés. L’oiseau dispose de 196 images WebP transparentes, avec son étalonnage intégré, pour conserver sa boucle sans les filtres vidéo CSS. Les médias d’origine et l’export serveur restent disponibles. Ces dérivés sont versionnés dans le dépôt ; pour les régénérer avec FFmpeg :
+
+```bash
+npm run assets:client
+```
+
+Le navigateur télécharge les médias du site ; le formulaire et le MP4 restent sur l’appareil pendant l’export local. Remotion envoie un événement technique à son service de licence lors du rendu, sans le formulaire ni la vidéo ; ce comportement est décrit dans la page Confidentialité. Le serveur ne reçoit le formulaire que si la solution de repli est sélectionnée et que la génération est lancée.
+
+### Préparer un fond Aquarelle pour accélérer davantage
+
+Un décor générique déjà préparé est utilisé lorsqu’il correspond exactement aux réglages. Cela évite de recalculer l’encre sur l’appareil ; son absence déclenche le calcul local du décor. Pour la palette rose avec pépites pendant 45 secondes :
+
+```bash
+docker compose exec atelier npm run backgrounds:prepare
+# Production : ajouter -f docker-compose.prod.yml après « docker compose ».
+docker compose exec atelier npm run backgrounds:prepare -- --color='#6F9278' --duration=45 --gold=false
+```
+
+Le premier calcul du décor peut rester long. Le fond est ensuite partagé entre tous les utilisateurs, indépendamment des prénoms, messages, âge et icône. Il est stocké sous `output/client-backgrounds`, dans le volume persistant, et échappe à la rétention des vidéos personnelles et au cache LRU. Sa taille compte dans le budget global de stockage. Le décor H.264 CRF 16 constitue un encodage intermédiaire ; ce chemin n’est pas mathématiquement sans perte.
+
+Préparez les fonds pendant une période sans génération et surveillez l’espace disponible. Le script verrouille les préparations concurrentes ; après une interruption brutale, vérifiez qu’il ne tourne plus avant de retirer son répertoire temporaire `.client-background-build`. Les fonds doivent être préparés à nouveau après une modification du moteur. Ils peuvent être préparés sur une machine plus puissante, puis copiés dans le dossier `client-backgrounds` du volume du VPS exécutant les mêmes sources.

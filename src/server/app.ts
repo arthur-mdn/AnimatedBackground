@@ -140,6 +140,9 @@ export async function createApplication(options:Options={}){
    res.download(path,record.job.filename,error=>{release();if(error){if(res.headersSent)res.destroy();else res.status(404).json({error:'Le fichier n’est plus disponible.'});}});
   }catch{release();res.status(404).json({error:'Le fichier n’est plus disponible.'});}
  });
+ // Only generic, administrator-prepared scenery is public; personal exports stay owned.
+ app.use('/client-backgrounds',express.static(join(out,'client-backgrounds'),{index:false,dotfiles:'deny',fallthrough:true,setHeaders:(res,path)=>{res.setHeader('Cache-Control',path.endsWith('manifest.json')?'no-cache':'public, max-age=31536000, immutable');}}));
+ app.use('/client-backgrounds',(_req,res)=>{res.sendStatus(404);});
  app.use(express.static(resolve('dist/web')));
  app.get('/{*path}',(_req,res)=>res.sendFile(resolve('dist/web/index.html')));
  app.use((err:Error&{type?:string;status?:number},_req:express.Request,res:express.Response,_next:express.NextFunction)=>{

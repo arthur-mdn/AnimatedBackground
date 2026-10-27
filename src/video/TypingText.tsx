@@ -1,5 +1,6 @@
+import {flushSync} from 'react-dom';
 import {useEffect, useState} from 'react';
-import {cancelRender, continueRender, delayRender} from 'remotion';
+import {useDelayRender} from 'remotion';
 import {graphemes, typedCharacters} from './timing';
 
 type Line = {text: string; width: number; edges: number[]};
@@ -12,6 +13,7 @@ export function TypingText({text, fontSize, maxWidth, frame, total, start, lengt
   total: number; start: number; length: number; singleLine?:boolean;
   fontFamily?:string; fontWeight?:number; letterSpacing?:number;
 }) {
+  const {delayRender,continueRender,cancelRender}=useDelayRender();
   const [layout, setLayout] = useState<{lines:Line[];size:number;spacing:number}>({lines:[],size:fontSize,spacing:letterSpacing});
   useEffect(() => {
     const handle = delayRender('Composition du texte');
@@ -39,11 +41,11 @@ export function TypingText({text, fontSize, maxWidth, frame, total, start, lengt
         }
         wrapped.push(line);
       }
-      setLayout({size,spacing,lines:wrapped.map(line => {
+      flushSync(()=>setLayout({size,spacing,lines:wrapped.map(line => {
         const letters = graphemes(line);
         return {text: line, width: measure(line),
           edges: letters.map((_, i) => measure(letters.slice(0, i + 1).join('')))};
-      })});
+      })}));
       continueRender(handle);
     }).catch(error => {if(!disposed)cancelRender(error);});
     return () => {disposed = true; continueRender(handle);};

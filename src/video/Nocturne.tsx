@@ -1,8 +1,11 @@
+import type {ReactNode} from 'react';
+import {ClientNocturneAge} from './ClientNocturneAge';
 import {cssRGB} from '../shared/color';
 import {NocturnePalette,useNocturneColor,useNocturnePalette,useNocturneSettings} from './NocturnePalette';
 import {useEffect,useState} from 'react';
-import {AbsoluteFill,useCurrentFrame,useVideoConfig,delayRender,continueRender,staticFile} from 'remotion';
+import {AbsoluteFill,useCurrentFrame,useVideoConfig,useDelayRender,staticFile} from 'remotion';
 import type {BirthdayInput} from '../shared/config';
+import {HeldForeground,useClientRendering,useClientRasterScale} from './ClientRendering';
 import {Fonts} from './Fonts';
 import {TypingText} from './TypingText';
 import {cycle,reveal} from './timing';
@@ -11,11 +14,11 @@ import {fadeUp} from './textMotion';
 import {useLightweightPreview} from './PreviewPerformance';
 
 const seed=(i:number)=>{const n=Math.sin(i*127.1+311.7)*43758.5453;return n-Math.floor(n);};
-export function NocturneBackdrop({phase=0,cover=false}:{phase?:number;cover?:boolean}){
- const color=useNocturneColor(),paletteId=useNocturnePalette();
+export function NocturneBackdrop({phase=0,cover=false,children}:{phase?:number;cover?:boolean;children?:ReactNode}){
+ const color=useNocturneColor(),paletteId=useNocturnePalette(),clientRendering=useClientRendering(),rasterScale=useClientRasterScale();
  const palette=useNocturneSettings(),lightweight=useLightweightPreview();
  const [red,green,blue]=paletteId==='bleu-nuit'?[.42,.52,.72]:cssRGB(color('#6b85b8'));
- return <svg viewBox="0 0 1920 1080" preserveAspectRatio={cover?'xMidYMid slice':'xMidYMid meet'} width="100%" height="100%" style={{position:'absolute',inset:0}} aria-hidden="true">
+ return <svg data-client-raster={clientRendering?'night':undefined} viewBox="0 0 1920 1080" preserveAspectRatio={cover?'xMidYMid slice':'xMidYMid meet'} width={clientRendering?1920*rasterScale:'100%'} height={clientRendering?1080*rasterScale:'100%'} style={{position:'absolute',inset:0,transform:rasterScale===1?undefined:`scale(${1/rasterScale})`,transformOrigin:'top left'}} aria-hidden="true">
  <defs>
  <radialGradient id="night-sky"><stop stopColor={color('#182d69')}/><stop offset=".55" stopColor={color('#0b153b')}/><stop offset="1" stopColor={color('#030717')}/></radialGradient>
  <linearGradient id="night-beam" x1="0" y1="0" x2="1" y2="0"><stop stopColor={color('#81b8ff')} stopOpacity="0"/><stop offset=".2" stopColor={color('#81b8ff')} stopOpacity=".08"/><stop offset=".5" stopColor={color('#a0cfff')} stopOpacity=".36"/><stop offset=".8" stopColor={color('#81b8ff')} stopOpacity=".08"/><stop offset="1" stopColor={color('#81b8ff')} stopOpacity="0"/></linearGradient>
@@ -61,24 +64,25 @@ export function NocturneBackdrop({phase=0,cover=false}:{phase?:number;cover?:boo
  {[1,3,4,5].map(i=>{const x=90+seed(i+50)*1740,y=210+seed(i+70)*600;return <g key={i} transform={`translate(${x+Math.sin(phase+i)*14} ${y+Math.cos(phase+i*.7)*18}) rotate(${Math.sin(phase+i)*9-12}) scale(${.48+seed(i+90)*.65})`} opacity={.14+seed(i+110)*.35} fill={color('#b9d8ff')} color={color('#b9d8ff')}><use href="#night-note"/></g>;})}
  {Array.from({length:36},(_,i)=>{const x=seed(i+950)*1920,y=620+seed(i+1200)*460;return <circle key={i} cx={x+Math.sin(phase+i)*12} cy={y+Math.cos(phase+i)*15} r={2+seed(i+990)*8} fill={color('#a9c7ff')} opacity={.025+seed(i+1300)*.07}/>;})}
  {Array.from({length:8},(_,i)=>{const x=100+seed(i+1400)*1720,y=100+seed(i+1500)*850,a=.15+.45*Math.pow(.5+.5*Math.sin(phase*2+i*2),6);return <g key={i} transform={`translate(${x} ${y})`} opacity={a} fill={color('#e0edff')}><path d="M0-12 2-2 12 0 2 2 0 12-2 2-12 0-2-2Z"/><circle r="8" opacity=".35" filter={lightweight?undefined:"url(#night-glow)"}/></g>;})}
- </svg>;
+ {children}</svg>;
 }
 export function Nocturne(props:BirthdayInput){return <NocturnePalette palette={props.nocturnePalette} customColor={props.nocturneColor}><NocturneScene {...props}/></NocturnePalette>;}
 function NocturneScene(props:BirthdayInput){
+ const {delayRender,continueRender}=useDelayRender();
  const layer=useRenderLayer();
- const color=useNocturneColor();
+ const color=useNocturneColor(),clientRendering=useClientRendering();
  const frame=useCurrentFrame(),{durationInFrames:total}=useVideoConfig(),phase=cycle(frame,total);
  const [fontHandle]=useState(()=>delayRender('Chargement de la typographie nocturne'));
  useEffect(()=>{Promise.all([document.fonts.load('790px Celebration'),document.fonts.load('700 150px NocturneDisplay')]).then(()=>continueRender(fontHandle)).catch(()=>continueRender(fontHandle));},[fontHandle]);
  const visible=(start:number)=>fadeUp(frame,total,start,2.3,2.7);
  const line1=props.messageLine1.trim(),line2=props.messageLine2.trim();
  return <AbsoluteFill style={{background:(layer==='foreground'||layer==='screen')?'transparent':color('#030717'),color:color('#eef3ff'),overflow:'hidden',fontFamily:'Arial, Helvetica, sans-serif'}}>
- <Fonts/>{(layer==='full'||layer==='background')&&<NocturneBackdrop phase={phase*2}/>}
- {(layer==='full'||layer==='screen')&&<div style={{position:'absolute',inset:0,display:'flex',alignItems:'center',justifyContent:'center',opacity:reveal(frame,total,1.5,4)*.22,mixBlendMode:layer==='full'?'screen':'normal',maskImage:'linear-gradient(transparent 12%,#000 36%,#000 64%,transparent 91%)',color:color('#91a5e8'),fontFamily:'Celebration, cursive',WebkitTextStroke:'18px currentColor',paintOrder:'stroke fill',whiteSpace:'nowrap',fontSize:props.age>99?650:790,lineHeight:1,transform:`translateY(25px) scale(${1+Math.sin(phase)*.008})`}}><span>{props.age}</span><span style={{fontSize:400,WebkitTextStroke:'12px currentColor',marginLeft:15,marginTop:155}}>ans</span></div>}
- {(layer==='full'||layer==='foreground')&&<>
+ <Fonts/>{(layer==='full'||layer==='background')&&<NocturneBackdrop phase={phase*2}>{clientRendering&&<ClientNocturneAge age={props.age}/>}</NocturneBackdrop>}
+ {!clientRendering&&(layer==='full'||layer==='screen')&&<div style={{position:'absolute',inset:0,display:'flex',alignItems:'center',justifyContent:'center',opacity:reveal(frame,total,1.5,4)*.22,mixBlendMode:layer==='full'?'screen':'normal',maskImage:'linear-gradient(transparent 12%,#000 36%,#000 64%,transparent 91%)',color:color('#91a5e8'),fontFamily:'Celebration, cursive',WebkitTextStroke:'18px currentColor',paintOrder:'stroke fill',whiteSpace:'nowrap',fontSize:props.age>99?650:790,lineHeight:1,transform:`translateY(25px) scale(${1+Math.sin(phase)*.008})`}}><span>{props.age}</span><span style={{fontSize:400,WebkitTextStroke:'12px currentColor',marginLeft:15,marginTop:155}}>ans</span></div>}
+ {(layer==='full'||layer==='foreground')&&<HeldForeground>
  <div style={{position:'absolute',top:line2?285:365,left:120,right:120,textAlign:'center',textShadow:`0 1px 0 ${color('#b6c8e8')}, 0 2px 0 ${color('#8297bf')}, 0 3px 0 ${color('#536d9e')}, 0 5px 0 ${color('#263d69')}, 0 9px 12px ${color('#010615aa')}, 0 0 30px ${color('#6898ec44')}`,...visible(0)}}>{line1&&<TypingText text={line1} fontSize={134} fontFamily="NocturneDisplay, Arial, sans-serif" fontWeight={700} singleLine maxWidth={1600} frame={frame} total={total} start={0} length={.65}/>}</div>
  <div style={{position:'absolute',top:line1?405:340,left:120,right:120,textAlign:'center',textShadow:`0 1px 0 ${color('#b6c8e8')}, 0 2px 0 ${color('#8297bf')}, 0 3px 0 ${color('#536d9e')}, 0 5px 0 ${color('#263d69')}, 0 9px 12px ${color('#010615aa')}, 0 0 30px ${color('#6898ec44')}`,...visible(.8)}}>{line2&&<TypingText text={line2} fontSize={134} fontFamily="NocturneDisplay, Arial, sans-serif" fontWeight={700} singleLine maxWidth={1600} frame={frame} total={total} start={.8} length={.8}/>}</div>
  <div style={{position:'absolute',left:120,right:120,top:630,textAlign:'center',color:'#fff',textShadow:`0 1px 0 ${color('#c3d1ec')}, 0 2px 0 ${color('#91a6cc')}, 0 4px 0 ${color('#5671a1')}, 0 6px 0 ${color('#293e68')}, 0 10px 16px ${color('#010615bb')}, 0 0 32px ${color('#4e77d855')}`,...visible(2.4)}}><TypingText text={props.firstName} fontSize={158} fontFamily="NocturneDisplay, Arial, sans-serif" fontWeight={700} singleLine maxWidth={1560} frame={frame} total={total} start={2.4} length={1}/></div>
  <div style={{position:'absolute',width:160,height:1,left:880,top:850,background:`linear-gradient(90deg,transparent,${color('#9fb8f2')},transparent)`,...visible(4)}}/>
- </>}</AbsoluteFill>;
+ </HeldForeground>}</AbsoluteFill>;
 }
