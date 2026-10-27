@@ -12,8 +12,9 @@ import {WeddingFoliage} from './WeddingFoliage';
 import {cycle,reveal,smooth} from './timing';
 import {useRenderLayer} from './RenderLayer';
 import {fadeUp} from './textMotion';
+import {useLightweightPreview} from './PreviewPerformance';
 export function Wedding(props:BirthdayInput){
- const layer=useRenderLayer();
+ const layer=useRenderLayer(),lightweight=useLightweightPreview();
  const frame=useCurrentFrame(),{durationInFrames:total}=useVideoConfig(),phase=cycle(frame,total);
  const [handle]=useState(()=>delayRender('Chargement des polices du mariage'));
  useEffect(()=>{Promise.all([document.fonts.load('230px GardenNames'),document.fonts.load('82px Celebration')]).then(()=>continueRender(handle)).catch(()=>continueRender(handle));},[handle]);
@@ -40,7 +41,7 @@ export function Wedding(props:BirthdayInput){
    </filter>
   </defs></svg>
   <div style={{position:'absolute',left:1305,top:5,width:590,height:590,opacity:reveal(frame,total,.5,2.4)*.88,mixBlendMode:'multiply',maskImage:'linear-gradient(90deg,transparent,#000 10%,#000 90%,transparent),linear-gradient(0deg,transparent,#000 10%,#000 90%,transparent)',maskComposite:'intersect',transform:`translate3d(${(1-arrival)*650+Math.sin(phase)*7}px,${Math.cos(phase)*6}px,0) rotate(${Math.sin(phase)*1.2}deg)`}}>
-   <Loop durationInFrames={196} layout="none"><OffthreadVideo src={staticFile('media/wedding-bird-loop.mp4')} muted style={{width:'100%',height:'100%',objectFit:'contain',filter:'url(#wedding-bird-contrast)'}}/></Loop>
+   <Loop durationInFrames={196} layout="none"><OffthreadVideo src={staticFile(lightweight?'media/wedding-bird-preview.mp4':'media/wedding-bird-loop.mp4')} muted style={{width:'100%',height:'100%',objectFit:'contain',filter:lightweight?undefined:'url(#wedding-bird-contrast)'}}/></Loop>
   </div>
   </>}{layer!=='background'&&<>{props.weddingMessage&&<div style={{position:'absolute',left:330,right:330,top:205,textAlign:'center',color:palette.muted,...appear(0)}}>
    <TypingText text={props.weddingMessage} fontSize={82} singleLine maxWidth={1260} frame={frame} total={total} start={0} length={1.2}/>

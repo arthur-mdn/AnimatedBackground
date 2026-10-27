@@ -3,6 +3,7 @@ import {Img,staticFile,useCurrentFrame,useVideoConfig} from 'remotion';
 import {smooth} from './timing';
 import {GoldNuggets} from './GoldNuggets';
 import {mixColors,cssRGB} from '../shared/color';
+import {useLightweightPreview} from './PreviewPerformance';
 
 /** An organic capillary front: fixed harmonics keep the texture deterministic. */
 export function inkOutline(radius:number,seed:number,stretch=1,motion=0){
@@ -39,8 +40,27 @@ export function inkEdgeMotion(frame:number,total:number){
  return {x:5*Math.sin(phase)*strength,y:4*Math.sin(phase*2+.4)*strength,phase:.12*Math.sin(phase+.7)*strength};
 }
 
+// Fixed interior contours avoid rebuilding thousands of path coordinates per frame.
+const previewContours=Array.from({length:6},(_,i)=>inkOutline(350+i*75,i+1,.94));
+function PreviewInkCorner({id,spread,water,edge,showGoldNuggets,opposite=false}:{id:string;spread:number;water:ReturnType<typeof inkWaterMotion>;edge:ReturnType<typeof inkWaterMotion>;showGoldNuggets:boolean;opposite?:boolean}){
+ const color=useWatercolorColor(),paper=color('#fff1e9');
+ const diluted=(hex:string,amount=spread*.58)=>mixColors(color(hex),paper,amount);
+ const outline=inkOutline(250+spread*450,opposite?8:3,.98,edge.phase);
+ return <g opacity={.84} transform={opposite?'translate(1920 1080) rotate(180)':'translate(0 0)'}>
+  <defs><radialGradient id={`${id}-preview-pigment`} cx="28%" cy="25%" r="78%"><stop stopColor={diluted('#eda4a7')} stopOpacity=".62"/><stop offset=".52" stopColor={diluted('#f3bcb8')} stopOpacity=".6"/><stop offset=".85" stopColor={diluted('#de929a')} stopOpacity=".58"/><stop offset="1" stopColor={diluted('#f1b8b9')} stopOpacity=".58"/></radialGradient><clipPath id={`${id}-preview-spread`}><path d={outline}/></clipPath></defs>
+  <g clipPath={`url(#${id}-preview-spread)`}>
+   <path d={outline} fill={`url(#${id}-preview-pigment)`}/>
+   {previewContours.map((d,i)=><path key={i} d={d} fill={diluted(i%3===0?'#f7d5d0':'#d58b9a')} fillOpacity={i%3===0?.14:.05} stroke={diluted('#c78594')} strokeOpacity=".07" strokeWidth="1.8" transform={`translate(${Math.sin(i*3)*40+water.x} ${Math.cos(i*2)*45+water.y}) rotate(${water.phase*3})`}/>)}
+   {showGoldNuggets&&<GoldNuggets id={id} seed={opposite?47:13} opposite={opposite} spread={spread} water={water}/>}
+  </g>
+  <path d={outline} fill="none" stroke={diluted('#b76f83',.15+spread*.2)} strokeWidth="9" strokeOpacity=".09"/>
+  <path d={outline} fill="none" stroke={diluted('#bc7585',.12+spread*.22)} strokeWidth="2.2" strokeOpacity=".11"/>
+ </g>;
+}
+
 function InkCorner({id,spread,water,edge,showGoldNuggets,opposite=false}:{id:string;spread:number;water:ReturnType<typeof inkWaterMotion>;edge:ReturnType<typeof inkWaterMotion>;showGoldNuggets:boolean;opposite?:boolean}){
- const color=useWatercolorColor(),base=useWatercolorBase();
+ const color=useWatercolorColor(),base=useWatercolorBase(),lightweight=useLightweightPreview();
+ if(lightweight)return <PreviewInkCorner id={id} spread={spread} water={water} edge={edge} showGoldNuggets={showGoldNuggets} opposite={opposite}/>;
  const paper=color('#fff1e9');
  const diluted=(hex:string,amount=spread*.58)=>mixColors(color(hex),paper,amount);
  const originalGrain=base.toUpperCase()==='#CF7E7F'?[.76,.38,.4]:watercolorRGB('#c26166',base);
@@ -92,12 +112,12 @@ function InkCorner({id,spread,water,edge,showGoldNuggets,opposite=false}:{id:str
 }
 
 export function RoseInk({showGoldNuggets}:{showGoldNuggets:boolean}){
- const frame=useCurrentFrame(),{durationInFrames}=useVideoConfig();
+ const frame=useCurrentFrame(),{durationInFrames}=useVideoConfig(),lightweight=useLightweightPreview();
  const spread=inkSpread(frame,durationInFrames);
  const water=inkWaterMotion(frame,durationInFrames);
  const edgeDrift=inkEdgeMotion(frame,durationInFrames);
  const edge={x:water.x+edgeDrift.x,y:water.y+edgeDrift.y,phase:water.phase+edgeDrift.phase};
- return <>{[23,47,11,31].map(seed=><Img key={seed} src={staticFile(`textures/ink-noise-${seed}.png`)} style={{display:'none'}}/>) }<svg width="1920" height="1080" viewBox="0 0 1920 1080" style={{position:'absolute',inset:0}} aria-hidden="true">
+ return <>{!lightweight&&[23,47,11,31].map(seed=><Img key={seed} src={staticFile(`textures/ink-noise-${seed}.png`)} style={{display:'none'}}/>) }<svg width="1920" height="1080" viewBox="0 0 1920 1080" style={{position:'absolute',inset:0}} aria-hidden="true">
   <InkCorner id="ink-top" spread={spread} water={water} edge={edge} showGoldNuggets={showGoldNuggets}/>
   <InkCorner id="ink-bottom" spread={spread} water={water} edge={edge} showGoldNuggets={showGoldNuggets} opposite/>
  </svg></>;

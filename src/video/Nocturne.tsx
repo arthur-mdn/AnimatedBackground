@@ -1,18 +1,19 @@
 import {cssRGB} from '../shared/color';
 import {NocturnePalette,useNocturneColor,useNocturnePalette,useNocturneSettings} from './NocturnePalette';
 import {useEffect,useState} from 'react';
-import {AbsoluteFill,useCurrentFrame,useVideoConfig,delayRender,continueRender} from 'remotion';
+import {AbsoluteFill,useCurrentFrame,useVideoConfig,delayRender,continueRender,staticFile} from 'remotion';
 import type {BirthdayInput} from '../shared/config';
 import {Fonts} from './Fonts';
 import {TypingText} from './TypingText';
 import {cycle,reveal} from './timing';
 import {useRenderLayer} from './RenderLayer';
 import {fadeUp} from './textMotion';
+import {useLightweightPreview} from './PreviewPerformance';
 
 const seed=(i:number)=>{const n=Math.sin(i*127.1+311.7)*43758.5453;return n-Math.floor(n);};
 export function NocturneBackdrop({phase=0,cover=false}:{phase?:number;cover?:boolean}){
  const color=useNocturneColor(),paletteId=useNocturnePalette();
- const palette=useNocturneSettings();
+ const palette=useNocturneSettings(),lightweight=useLightweightPreview();
  const [red,green,blue]=paletteId==='bleu-nuit'?[.42,.52,.72]:cssRGB(color('#6b85b8'));
  return <svg viewBox="0 0 1920 1080" preserveAspectRatio={cover?'xMidYMid slice':'xMidYMid meet'} width="100%" height="100%" style={{position:'absolute',inset:0}} aria-hidden="true">
  <defs>
@@ -33,17 +34,18 @@ export function NocturneBackdrop({phase=0,cover=false}:{phase?:number;cover?:boo
  <feComposite in="cloud-soft" in2="SourceGraphic" operator="in"/>
  </filter>
  <filter id="night-glow" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="5"/></filter>
+ {lightweight&&<mask id="night-preview-cloud-mask" maskUnits="userSpaceOnUse" x="-300" y="650" width="2520" height="500" style={{maskType:'alpha'}}><image href={staticFile('textures/nocturne-cloud-mask.png')} x="-300" y="650" width="2520" height="500" preserveAspectRatio="none"/></mask>}
  <g id="night-note"><ellipse cx="0" cy="0" rx="12" ry="8" transform="rotate(-22)"/><ellipse cx="34" cy="-8" rx="12" ry="8" transform="rotate(-22 34 -8)"/><path d="M7-1v-52l34-8v52" fill="none" stroke="currentColor" strokeWidth="6" strokeLinejoin="round"/><path d="m7-53 34-8v10L7-43Z"/></g>
  </defs>
  <rect width="1920" height="1080" fill="url(#night-sky)"/>
  {paletteId!=='bleu-nuit'&&<ellipse cx="960" cy="880" rx="1400" ry="440" fill="url(#night-horizon)"/>}
  <ellipse cx="960" cy="790" rx="1100" ry="380" fill="url(#night-halo)"/>
- {Array.from({length:210},(_,i)=>{const x=seed(i+1)*1920,y=seed(i+401)*1020;const glow=.25+.35*(.5+.5*Math.sin(phase*(i%3+1)+seed(i+800)*Math.PI*2));return <circle key={i} cx={x+Math.sin(phase+ i)*5} cy={y+Math.cos(phase+i)*4} r={.7+seed(i+200)*1.6} fill={color('#c2d7ff')} opacity={glow}/>;})}
+ {Array.from({length:lightweight?100:210},(_,i)=>{const x=seed(i+1)*1920,y=seed(i+401)*1020;const glow=.25+.35*(.5+.5*Math.sin(phase*(i%3+1)+seed(i+800)*Math.PI*2));return <circle key={i} cx={x+Math.sin(phase+ i)*5} cy={y+Math.cos(phase+i)*4} r={.7+seed(i+200)*1.6} fill={color('#c2d7ff')} opacity={glow}/>;})}
  {[330,650,1270,1610].map((x,i)=>{const angle=[-13,18,-17,14][i]+Math.sin(phase+i*1.8)*7;return <g key={x} transform={`rotate(${angle} ${x} 1120)`}>
- <g mask="url(#night-beam-mask)" filter="url(#night-beam-soft)"><path d={`M${x-12} 1150 ${x-285} -130 ${x+230} -130 ${x+12} 1150Z`} fill="url(#night-beam)" opacity=".75"/>
+ <g mask="url(#night-beam-mask)" filter={lightweight?undefined:"url(#night-beam-soft)"}><path d={`M${x-12} 1150 ${x-285} -130 ${x+230} -130 ${x+12} 1150Z`} fill="url(#night-beam)" opacity=".75"/>
  <path d={`M${x-8} 1150 ${x-135} -130 ${x+65} -130 ${x+8} 1150Z`} fill="url(#night-beam)" opacity=".4"/></g>
  </g>;})}
- {[0,1].map(layer=><g key={layer} transform={`translate(${Math.sin(phase+layer*2)*40} ${Math.cos(phase+layer)*7})`} opacity={layer ? 0.65 : 0.8} filter="url(#night-cloud-texture)">
+ {lightweight?[0,1].map(layer=><g key={layer} transform={`translate(${Math.sin(phase+layer*2)*40} ${Math.cos(phase+layer)*7+layer*65})`} opacity={layer?.65:.8} mask="url(#night-preview-cloud-mask)"><rect x="-300" y="650" width="2520" height="500" fill={color('#6b85b8')}/></g>):[0,1].map(layer=><g key={layer} transform={`translate(${Math.sin(phase+layer*2)*40} ${Math.cos(phase+layer)*7})`} opacity={layer ? 0.65 : 0.8} filter={lightweight?undefined:"url(#night-cloud-texture)"}>
  {Array.from({length:9},(_,i)=><ellipse key={i} cx={-100+i*265+seed(i+1900+layer*20)*100} cy={760+layer*65+seed(i+2000+layer*20)*95} rx={190+seed(i+2100)*180} ry={65+seed(i+2200+layer*20)*75} fill="url(#night-cloud-feather)"/>)}
  </g>)}
  <g transform={`translate(${Math.sin(phase)*3} 0)`}>
@@ -58,7 +60,7 @@ export function NocturneBackdrop({phase=0,cover=false}:{phase?:number;cover?:boo
  <path d="M257 42a48 48 0 1 0 46 63 42 42 0 0 1-46-63" fill={color('#8fbaff')} opacity=".25"/>
  {[1,3,4,5].map(i=>{const x=90+seed(i+50)*1740,y=210+seed(i+70)*600;return <g key={i} transform={`translate(${x+Math.sin(phase+i)*14} ${y+Math.cos(phase+i*.7)*18}) rotate(${Math.sin(phase+i)*9-12}) scale(${.48+seed(i+90)*.65})`} opacity={.14+seed(i+110)*.35} fill={color('#b9d8ff')} color={color('#b9d8ff')}><use href="#night-note"/></g>;})}
  {Array.from({length:36},(_,i)=>{const x=seed(i+950)*1920,y=620+seed(i+1200)*460;return <circle key={i} cx={x+Math.sin(phase+i)*12} cy={y+Math.cos(phase+i)*15} r={2+seed(i+990)*8} fill={color('#a9c7ff')} opacity={.025+seed(i+1300)*.07}/>;})}
- {Array.from({length:8},(_,i)=>{const x=100+seed(i+1400)*1720,y=100+seed(i+1500)*850,a=.15+.45*Math.pow(.5+.5*Math.sin(phase*2+i*2),6);return <g key={i} transform={`translate(${x} ${y})`} opacity={a} fill={color('#e0edff')}><path d="M0-12 2-2 12 0 2 2 0 12-2 2-12 0-2-2Z"/><circle r="8" opacity=".35" filter="url(#night-glow)"/></g>;})}
+ {Array.from({length:8},(_,i)=>{const x=100+seed(i+1400)*1720,y=100+seed(i+1500)*850,a=.15+.45*Math.pow(.5+.5*Math.sin(phase*2+i*2),6);return <g key={i} transform={`translate(${x} ${y})`} opacity={a} fill={color('#e0edff')}><path d="M0-12 2-2 12 0 2 2 0 12-2 2-12 0-2-2Z"/><circle r="8" opacity=".35" filter={lightweight?undefined:"url(#night-glow)"}/></g>;})}
  </svg>;
 }
 export function Nocturne(props:BirthdayInput){return <NocturnePalette palette={props.nocturnePalette} customColor={props.nocturneColor}><NocturneScene {...props}/></NocturnePalette>;}

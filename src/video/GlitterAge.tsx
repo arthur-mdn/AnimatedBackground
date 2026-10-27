@@ -2,6 +2,7 @@ import {useWatercolorColor} from './WatercolorPalette';
 import {memo,useEffect,useState} from 'react';
 import {cancelRender,continueRender,delayRender,useCurrentFrame,useVideoConfig} from 'remotion';
 import {APPEARANCE,reveal} from './timing';
+import {useLightweightPreview} from './PreviewPerformance';
 
 function grain(index:number,salt:number){
  let value=Math.imul(index+salt,0x45d9f3b);
@@ -19,7 +20,7 @@ function YearsLabel({x}:{x:number}){
 // Native SVG text stays editable. The patterned face is clipped by the glyphs;
 // offset copies, a bevel and a soft shadow create shallow rose-gold extrusion.
 export const GlitterAge=memo(function GlitterAge({age}:{age:number}){
- const color=useWatercolorColor();
+ const color=useWatercolorColor(),lightweight=useLightweightPreview();
  const size=String(age).length===3?340:370;
  const [width,setWidth]=useState(String(age).length*220);
  useEffect(()=>{
@@ -46,7 +47,7 @@ export const GlitterAge=memo(function GlitterAge({age}:{age:number}){
     <stop stopColor={color('#ffe0ca')}/><stop offset=".45" stopColor={color('#e9b6a7')}/><stop offset="1" stopColor={color('#a76a61')}/>
    </linearGradient>
    <pattern id="age-glitter" width="64" height="64" patternUnits="userSpaceOnUse">
-    {Array.from({length:650},(_,i)=>{
+    {Array.from({length:lightweight?90:650},(_,i)=>{
      const x=grain(i,73)*64,y=grain(i,437)*64;
      return <circle key={i} cx={x} cy={y} r={i%23===0?.85:.18+grain(i,178)*.4}
       fill={[color('#fff5e6'),color('#bc7770'),color('#ffe4d2'),color('#f8cbb8'),color('#ca8b82')][i%5]} opacity={.25+grain(i,961)*.6}/>;
@@ -56,7 +57,7 @@ export const GlitterAge=memo(function GlitterAge({age}:{age:number}){
     <feDropShadow dx="4" dy="7" stdDeviation="3" floodColor={color('#694335')} floodOpacity=".28"/>
    </filter>
   </defs>
-  <g filter="url(#age-shadow)">
+  <g filter={lightweight?undefined:"url(#age-shadow)"}>
    {[5,4,3,2,1].map(depth=><text key={depth} {...glyph} transform={`translate(${depth*.65} ${depth})`} fill={color('#b77c72')} stroke={color('#b77c72')} strokeWidth=".8">{age}</text>)}
    <text {...glyph} fill="url(#age-face)" stroke="url(#age-bevel)" strokeWidth="2.2" paintOrder="stroke fill">{age}</text>
    <text {...glyph} fill="url(#age-glitter)">{age}</text>

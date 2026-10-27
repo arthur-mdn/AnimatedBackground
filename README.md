@@ -169,3 +169,9 @@ npm run build
 L’autorisation d’utiliser le générateur et ses vidéos ne remplace pas les licences des composants du projet. Le moteur vidéo utilise [Remotion](https://www.remotion.dev/docs/license) ; les licences des polices sont fournies dans `public/fonts/`.
 
 Réalisé avec ❤️ par [Arthur Mondon](https://mondon.pro/).
+
+## Aperçu dans Safari
+
+Safari et les navigateurs iOS utilisent un aperçu allégé : les filtres animés de diffusion, de bruit et de flou sont remplacés par des formes et des textures préparées. Le feuillage conserve ses mouvements ; la vidéo de l’oiseau utilise une version plus légère avec sa teinte pastel déjà appliquée. Les scintillements et la typographie restent personnalisables.
+
+Ces adaptations concernent uniquement l’aperçu en direct et les vignettes. Les exports MP4 utilisent toujours la composition complète, même si la génération est lancée depuis Safari.
