@@ -35,6 +35,8 @@ async function loadFonts(){
   loadFont({family:'Portrait',url:staticFile('fonts/bodoni-moda-latin-700-normal.woff2'),weight:'700'}),
   loadFont({family:'Portrait',url:staticFile('fonts/bodoni-moda-latin-ext-700-normal.woff2'),weight:'700',unicodeRange:'U+0100-02FF,U+1E00-1EFF'}),
   loadFont({family:'GardenNames',url:staticFile('fonts/apple-chancery.ttf'),weight:'400'}),
+  loadFont({family:'Invitation',url:staticFile('fonts/cormorant-garamond-latin-400-normal.woff2'),weight:'400'}),
+  loadFont({family:'Invitation',url:staticFile('fonts/cormorant-garamond-latin-ext-400-normal.woff2'),weight:'400',unicodeRange:'U+0100-02FF,U+1E00-1EFF'}),
   loadFont({family:'NocturneDisplay',url:staticFile('fonts/outfit-latin-700-normal.woff2'),weight:'700'}),
   loadFont({family:'NocturneDisplay',url:staticFile('fonts/outfit-latin-ext-700-normal.woff2'),weight:'700',unicodeRange:'U+0100-02FF,U+1E00-1EFF'})
  ]);

@@ -12,9 +12,17 @@ import {TypingText} from './TypingText';
 import {GlitterAge} from './GlitterAge';
 import {Nocturne} from './Nocturne';
 import {Wedding} from './Wedding';
+import {Childhood} from './Childhood';
+import {Vows} from './Vows';
 import {CelebrationOrnament} from './CelebrationOrnament';
 import {WatercolorPalette,useWatercolorColor} from './WatercolorPalette';
-export function Birthday(props:BirthdayInput){return props.templateId==='jardin-mariage'?<Wedding {...props}/>:props.templateId==='bleu-minuit'?<Nocturne {...props}/>:<WatercolorPalette base={props.watercolorColor}><RoseBirthday {...props}/></WatercolorPalette>;}
+export function Birthday(props:BirthdayInput){
+ if(props.templateId==='jardin-mariage')return <Wedding {...props}/>;
+ if(props.templateId==='sceau-voeux')return <Vows {...props}/>;
+ if(props.templateId==='bleu-minuit')return <Nocturne {...props}/>;
+ if(props.templateId==='ballon-enfance')return <Childhood {...props}/>;
+ return <WatercolorPalette base={props.watercolorColor}><RoseBirthday {...props}/></WatercolorPalette>;
+}
 function RoseBirthday(props:BirthdayInput){
  const {delayRender,continueRender}=useDelayRender();
  const layer=useRenderLayer(),clientRendering=useClientRendering();

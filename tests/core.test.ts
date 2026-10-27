@@ -36,4 +36,7 @@ test('Mariage : ordre des prénoms, date et champs propres au modèle',async()=>
  assert.equal(parsed.age,50);
  assert.equal(filename(parsed),'mariage_laura-maxime_2027-06-12_45s.mp4');
  assert.equal(filename({...parsed,reverseNames:true}),'mariage_maxime-laura_2027-06-12_45s.mp4');
+ assert.equal(filename({...parsed,templateId:'sceau-voeux'}),'mariage_laura-maxime_2027-06-12_45s.mp4');
+ assert.ok(inputSchema.safeParse({...input,templateId:'sceau-voeux'}).success);
+ assert.equal(filename({...defaults,templateId:'ballon-enfance',firstName:'Lina',age:5}),'anniversaire_lina_5ans_enfance_45s.mp4');
 });

@@ -8,7 +8,7 @@ import {RenderCache,renderCacheKey,publishFile} from '../src/server/renderCache'
 import {losslessBackgroundArgs} from '../src/server/lossless';
 import {computeRenderVersion} from '../src/server/renderVersion';
 test('Clés : fond indépendant des textes, exports sensibles aux personnalisations et version',()=>{
- for(const templateId of ['rose-poudre','bleu-minuit','jardin-mariage'] as const){
+ for(const templateId of ['rose-poudre','bleu-minuit','ballon-enfance','jardin-mariage','sceau-voeux'] as const){
   const input={...defaults,templateId};
   const changed={...input,firstName:'Autre',age:18,messageLine1:'Bravo',brideName:'Laura',groomName:'Maxime',weddingDate:'2026-10-26'};
   assert.equal(renderCacheKey('backgrounds','a',input),renderCacheKey('backgrounds','a',changed));

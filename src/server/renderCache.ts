@@ -14,11 +14,13 @@ export function backgroundSettings(p:BirthdayInput){
  const common={templateId:p.templateId,durationSeconds:p.durationSeconds};
  if(p.templateId==='rose-poudre')return {...common,watercolorColor:p.watercolorColor.toUpperCase(),showGoldNuggets:p.showGoldNuggets};
  if(p.templateId==='jardin-mariage')return {...common,gardenPalette:p.gardenPalette};
+ if(p.templateId==='sceau-voeux')return {...common,vowsPalette:p.vowsPalette};
+ if(p.templateId==='ballon-enfance')return {...common,childhoodPalette:p.childhoodPalette};
  return {...common,nocturnePalette:p.nocturnePalette,...(p.nocturnePalette==='custom'?{nocturneColor:p.nocturneColor.toUpperCase()}:{})};
 }
 export function exportSettings(p:BirthdayInput){
  const background=backgroundSettings(p);
- if(p.templateId==='jardin-mariage')return {...background,brideName:p.brideName,groomName:p.groomName,reverseNames:p.reverseNames,weddingDate:p.weddingDate,weddingMessage:p.weddingMessage};
+ if(p.templateId==='jardin-mariage'||p.templateId==='sceau-voeux')return {...background,brideName:p.brideName,groomName:p.groomName,reverseNames:p.reverseNames,weddingDate:p.weddingDate,weddingMessage:p.weddingMessage};
  return {...background,firstName:p.firstName,age:p.age,messageLine1:p.messageLine1,messageLine2:p.messageLine2,...(p.templateId==='rose-poudre'?{ornament:p.ornament}:{})};
 }
 export function renderCacheKey(kind:CacheKind,version:string,input:BirthdayInput){
