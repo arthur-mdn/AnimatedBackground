@@ -8,8 +8,8 @@ export async function computeRenderVersion(root=process.cwd()){
   const entries=await readdir(folder,{withFileTypes:true});
   for(const entry of entries.sort((a,b)=>a.name.localeCompare(b.name))){
    const path=join(folder,entry.name);
-   // Browser icons never participate in the video image.
-   if(folder===resolve(root,'public')&&['favicon.svg','favicon.ico','apple-touch-icon.png'].includes(entry.name))continue;
+   // Browser icons and SEO assets never participate in the video image.
+   if(folder===resolve(root,'public')&&['favicon.svg','favicon.ico','apple-touch-icon.png','og-image.svg','og-image.png','robots.txt','sitemap.xml'].includes(entry.name))continue;
    if(entry.isDirectory())await walk(path);
    else if(entry.isFile()){hash.update(relative(root,path));hash.update(await readFile(path));}
   }
