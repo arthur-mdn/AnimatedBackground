@@ -50,3 +50,7 @@ footer{border-top:1px solid #e9e5df;padding:24px 5%;display:flex;justify-content
 @supports(padding: max(0px)){body{padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-right);padding-bottom:env(safe-area-inset-bottom)}}
 
 .privacy-info{scroll-margin-top:28px}.privacy-info>p:not(.eyebrow){margin-bottom:18px}.privacy-info details a{color:#8e6b55;text-underline-offset:3px}
+
+footer .version{text-decoration:none;text-underline-offset:3px}footer .version:hover,footer .version:focus-visible{color:#8e6b55;text-decoration:underline}.privacy-page{min-height:100vh;display:flex;flex-direction:column}.privacy-page main{width:100%;flex:1;max-width:1120px}.privacy-back{display:inline-block;margin-bottom:32px;color:#8e6b55;font-size:12px;text-decoration:none;text-underline-offset:4px}.privacy-back:hover{text-decoration:underline}.privacy-content.seo-content{margin-top:32px;padding-top:32px}.privacy-content .privacy-info{max-width:none}.privacy-page .intro{margin-bottom:0}@media(max-width:760px){.privacy-back{margin-bottom:24px}.privacy-content.seo-content{margin-top:24px;padding-top:24px}}
+
+.legal-content a{color:#8e6b55;text-underline-offset:3px}.legal-content a:hover{color:#634630}.legal-content ul{padding-left:22px;margin:12px 0 0;line-height:1.8}.legal-content li+li{margin-top:10px}
