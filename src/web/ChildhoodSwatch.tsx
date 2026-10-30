@@ -1,10 +1,11 @@
 import {ChildhoodPalette,useChildhoodPalette} from '../video/ChildhoodPalette';
+import {FestiveWash} from '../video/Festive';
 import type {ChildhoodPaletteId} from '../shared/childhood';
 
 function SwatchArt(){
  const palette=useChildhoodPalette();
  return <svg viewBox="0 0 56 56" width="56" height="56" aria-hidden="true">
-  <rect width="56" height="56" fill={palette.background}/>
+  <svg width="56" height="56" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice"><FestiveWash kind="hearts" idPrefix="childhood-swatch" palette={{colors:[palette.soft,...palette.balloon],paper:palette.background,background:palette.paper,grain:palette.ink}}/></svg>
   <path d="M10 12 l5 0 -2.5 7 Z" fill={palette.balloon[0]} opacity=".85"/><path d="M22 10 l5 0 -2.5 7 Z" fill={palette.balloon[1]} opacity=".85"/><path d="M34 13 l5 0 -2.5 7 Z" fill={palette.balloon[2]} opacity=".85"/>
   <path d="M-2 11 C14 17 24 7 38 13 C48 17 54 10 58 12" fill="none" stroke="#c4b4a4" strokeWidth="1.5" strokeLinecap="round"/>
   <ellipse cx="16" cy="32" rx="7" ry="9" fill={palette.balloon[0]} opacity=".88"/>

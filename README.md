@@ -12,6 +12,8 @@ Créez gratuitement un fond animé pour un mariage ou un anniversaire : choisiss
 | --- | --- | --- |
 | **Aquarelle** | Encre en mouvement, pépites scintillantes et chiffres dorés en relief. | Prénom, âge, deux lignes de message, huit palettes ou couleur personnalisée, icône décorative et pépites activables. |
 | **Nocturne** | Ciel étoilé, notes de musique flottantes et projecteurs oscillants. | Prénom, âge en grand et en transparence, deux lignes de message, six palettes ou couleur personnalisée. |
+| **Éclats** | Ciel bleu nuit aquarellé, feux d’artifice dorés et âge métallisé. | Prénom, âge, deux lignes de message et durée. |
+| **Tendresse** | Cœurs aquarellés roses flottants, papier pastel et âge nacré. | Prénom, âge, deux lignes de message et durée. |
 | **Jardin** | Feuillage animé, colombe et prénoms qui se dessinent. | Deux prénoms, ordre d’affichage inversable, date, phrase facultative et six palettes claires. |
 
 L’aperçu animé permet de vérifier votre composition avant l’export. La durée est de **45 secondes par défaut**, ajustable de **30 secondes à 3 minutes**. L’entrée et la sortie sont conçues pour une lecture en boucle.
@@ -178,7 +180,7 @@ Ces adaptations concernent uniquement l’aperçu en direct et les vignettes. Le
 
 ## Export sur l’appareil
 
-Les modèles **Aquarelle, Nocturne et Jardin** génèrent leur MP4 directement dans le navigateur, avec les palettes, couleurs personnalisées, textes et durées du formulaire. Aucun fond préparé n’est requis. Le navigateur doit permettre l’encodage H.264 via WebCodecs ; la compatibilité est vérifiée avant de démarrer.
+Les modèles **Aquarelle, Nocturne, Enfance, Éclats, Tendresse, Jardin et Vœux** génèrent leur MP4 directement dans le navigateur, avec les palettes, couleurs personnalisées, textes et durées du formulaire. Aucun fond préparé n’est requis. Le navigateur doit permettre l’encodage H.264 via WebCodecs ; la compatibilité est vérifiée avant de démarrer.
 
 Le choix du serveur apparaît uniquement si le navigateur est incompatible ou si une tentative d’export local a échoué pour la configuration en cours. Il faut sélectionner explicitement cette solution de repli : aucun formulaire n’est envoyé à l’API de génération automatiquement. Une annulation ne constitue pas un échec et ne révèle pas le choix serveur. Un indicateur temporaire dans le stockage de session permet de proposer le serveur si le navigateur a interrompu ou rechargé la page pendant un export.
 

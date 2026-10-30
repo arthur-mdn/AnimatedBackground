@@ -12,6 +12,7 @@ import {TypingText} from './TypingText';
 import {GlitterAge} from './GlitterAge';
 import {Nocturne} from './Nocturne';
 import {Wedding} from './Wedding';
+import {Festive} from './Festive';
 import {Childhood} from './Childhood';
 import {Vows} from './Vows';
 import {CelebrationOrnament} from './CelebrationOrnament';
@@ -20,6 +21,7 @@ export function Birthday(props:BirthdayInput){
  if(props.templateId==='jardin-mariage')return <Wedding {...props}/>;
  if(props.templateId==='sceau-voeux')return <Vows {...props}/>;
  if(props.templateId==='bleu-minuit')return <Nocturne {...props}/>;
+ if(props.templateId==='feux-artifice'||props.templateId==='coeurs-aquarelle')return <Festive {...props}/>;
  if(props.templateId==='ballon-enfance')return <Childhood {...props}/>;
  return <WatercolorPalette base={props.watercolorColor}><RoseBirthday {...props}/></WatercolorPalette>;
 }

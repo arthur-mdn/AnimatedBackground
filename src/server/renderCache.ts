@@ -12,6 +12,8 @@ function canonical(value:unknown):string{
 }
 export function backgroundSettings(p:BirthdayInput){
  const common={templateId:p.templateId,durationSeconds:p.durationSeconds};
+ if(p.templateId==='feux-artifice')return {...common,fireworksPalette:p.fireworksPalette};
+ if(p.templateId==='coeurs-aquarelle')return {...common,heartsPalette:p.heartsPalette};
  if(p.templateId==='rose-poudre')return {...common,watercolorColor:p.watercolorColor.toUpperCase(),showGoldNuggets:p.showGoldNuggets};
  if(p.templateId==='jardin-mariage')return {...common,gardenPalette:p.gardenPalette};
  if(p.templateId==='sceau-voeux')return {...common,vowsPalette:p.vowsPalette};

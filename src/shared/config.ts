@@ -1,12 +1,13 @@
 import {z} from 'zod';
 import {gardenPaletteIds} from './garden';
 import {childhoodPaletteIds} from './childhood';
+import {fireworksPaletteIds,heartsPaletteIds} from './festive';
 import {vowsPaletteIds} from './vows';
 import {isWeddingDate,weddingNames} from './wedding';
 import {ornamentIds} from './ornaments';
 import {nocturnePaletteIds} from './nocturne';
 const oneLine=(maximum:number,label:string)=>z.string().trim().max(maximum,`${label} est limitée à ${maximum} caractères.`).refine(s=>!/[\r\n]/.test(s),`${label} doit tenir sur une seule ligne.`);
-export const templateIds=['rose-poudre','bleu-minuit','ballon-enfance','jardin-mariage','sceau-voeux'] as const;
+export const templateIds=['rose-poudre','bleu-minuit','ballon-enfance','feux-artifice','coeurs-aquarelle','jardin-mariage','sceau-voeux'] as const;
 export type TemplateId=typeof templateIds[number];
 export const isWeddingTemplate=(id:TemplateId)=>id==='jardin-mariage'||id==='sceau-voeux';
 export const inputSchema = z.object({
@@ -19,6 +20,8 @@ export const inputSchema = z.object({
   weddingDate:z.string().max(10),
   gardenPalette:z.enum(gardenPaletteIds).default('ivoire'),
   childhoodPalette:z.enum(childhoodPaletteIds).default('ciel'),
+  fireworksPalette:z.enum(fireworksPaletteIds).default('or'),
+  heartsPalette:z.enum(heartsPaletteIds).default('rose'),
   vowsPalette:z.enum(vowsPaletteIds).default('or'),
   weddingMessage:oneLine(100,'La phrase du mariage'),
   showGoldNuggets:z.boolean(),
@@ -40,17 +43,19 @@ export const inputSchema = z.object({
  }
 }).transform(input=>({...input,age:Number.isFinite(input.age)?input.age:50}));
 export type BirthdayInput=z.infer<typeof inputSchema>;
-export const defaults:BirthdayInput={templateId:'rose-poudre',firstName:'Prénom',age:50,brideName:'Prénom',groomName:'Prénom',reverseNames:false,weddingDate:'',gardenPalette:'ivoire',childhoodPalette:'ciel',vowsPalette:'or',weddingMessage:'',showGoldNuggets:true,ornament:'heart',watercolorColor:'#CF7E7F',nocturnePalette:'bleu-nuit',nocturneColor:'#20366F',messageLine1:'Joyeux',messageLine2:'Anniversaire',durationSeconds:45};
+export const defaults:BirthdayInput={templateId:'rose-poudre',firstName:'Prénom',age:50,brideName:'Prénom',groomName:'Prénom',reverseNames:false,weddingDate:'',gardenPalette:'ivoire',childhoodPalette:'ciel',vowsPalette:'or',fireworksPalette:'or',heartsPalette:'rose',weddingMessage:'',showGoldNuggets:true,ornament:'heart',watercolorColor:'#CF7E7F',nocturnePalette:'bleu-nuit',nocturneColor:'#20366F',messageLine1:'Joyeux',messageLine2:'Anniversaire',durationSeconds:45};
 export const VIDEO={width:1920,height:1080,fps:30} as const;
 export const templates=[
  {id:'rose-poudre',category:'birthday',name:'Aquarelle',description:'Encre, éclats & couleurs au choix'},
  {id:'bleu-minuit',category:'birthday',name:'Nocturne',description:'Étoiles, lumières & notes de musique'},
  {id:'ballon-enfance',category:'birthday',name:'Enfance',description:'Ballons, guirlande & pastels'},
+ {id:'feux-artifice',category:'birthday',name:'Éclats',description:'Feux d’artifice & ciel aquarelle'},
+ {id:'coeurs-aquarelle',category:'birthday',name:'Tendresse',description:'Cœurs flottants & aquarelle pastel'},
  {id:'jardin-mariage',category:'wedding',name:'Jardin',description:'Feuillage animé & colombe'},
  {id:'sceau-voeux',category:'wedding',name:'Vœux',description:'Enveloppe, cachet de cire & calligraphie'},
 ] as const;
 function safeName(value:string){return value.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')||'invite';}
-const birthdaySlug:Record<string,string>={'rose-poudre':'aquarelle','bleu-minuit':'nocturne','ballon-enfance':'enfance'};
+const birthdaySlug:Record<string,string>={'rose-poudre':'aquarelle','bleu-minuit':'nocturne','ballon-enfance':'enfance','feux-artifice':'eclats','coeurs-aquarelle':'tendresse'};
 export function filename(p:BirthdayInput){
  if(isWeddingTemplate(p.templateId))return `mariage_${weddingNames(p).map(safeName).join('-')}_${p.weddingDate}_${p.durationSeconds}s.mp4`;
  return `anniversaire_${safeName(p.firstName)}_${p.age}ans_${birthdaySlug[p.templateId]??p.templateId}_${p.durationSeconds}s.mp4`;

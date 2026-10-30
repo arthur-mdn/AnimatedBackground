@@ -16,7 +16,7 @@ export function installWebkitSvgCache(enabled:boolean){
  const createURL:typeof URL.createObjectURL=function(blob){
   const url=nativeURL.call(URL,blob);
   if(blob instanceof Blob&&blob.type.startsWith('image/svg+xml'))pending.push(blob.text().then(source=>{
-   const layer=source.match(/data-client-raster="(ink|night|foliage|childhood|vows)"/)?.[1];if(layer)metadata.set(url,layer);
+   const layer=source.match(/data-client-raster="(ink|night|foliage|childhood|vows|fireworks|hearts)"/)?.[1];if(layer)metadata.set(url,layer);
   }));
   return url;
  };

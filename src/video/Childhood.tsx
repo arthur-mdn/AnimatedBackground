@@ -6,6 +6,7 @@ import {fadeUp} from './textMotion';
 import {useRenderLayer} from './RenderLayer';
 import {HeldForeground,useClientRendering} from './ClientRendering';
 import {Fonts} from './Fonts';
+import {FestiveWash} from './Festive';
 import {HandwrittenText} from './HandwrittenText';
 import {TypingText} from './TypingText';
 import {ChildhoodPalette,useChildhoodPalette} from './ChildhoodPalette';
@@ -70,16 +71,7 @@ function ChildhoodBackdrop({frame,total}:{frame:number;total:number}){
  ];
  const balloons=[...left,...right];
  return <svg data-client-raster={clientRendering?'childhood':undefined} viewBox="0 0 1920 1080" width="100%" height="100%" style={{position:'absolute',inset:0,overflow:'visible'}} aria-hidden="true">
-  <defs>
-   <radialGradient id="childhood-paper" cx="50%" cy="48%" r="78%"><stop stopColor={palette.paper}/><stop offset="1" stopColor={palette.background}/></radialGradient>
-   <radialGradient id="childhood-wash" cx="50%" cy="0%" r="70%"><stop stopColor={palette.soft} stopOpacity=".42"/><stop offset=".45" stopColor={palette.soft} stopOpacity=".14"/><stop offset="1" stopColor={palette.soft} stopOpacity="0"/></radialGradient>
-   <radialGradient id="childhood-blush-left" cx="18%" cy="8%" r="42%"><stop stopColor={palette.balloon[0]} stopOpacity=".18"/><stop offset="1" stopColor={palette.balloon[0]} stopOpacity="0"/></radialGradient>
-   <radialGradient id="childhood-blush-right" cx="82%" cy="12%" r="40%"><stop stopColor={palette.balloon[1]} stopOpacity=".16"/><stop offset="1" stopColor={palette.balloon[1]} stopOpacity="0"/></radialGradient>
-  </defs>
-  <rect width="1920" height="1080" fill="url(#childhood-paper)"/>
-  <rect width="1920" height="520" fill="url(#childhood-wash)"/>
-  <ellipse cx="340" cy="90" rx="520" ry="260" fill="url(#childhood-blush-left)"/>
-  <ellipse cx="1580" cy="120" rx="480" ry="240" fill="url(#childhood-blush-right)"/>
+  <FestiveWash kind="hearts" idPrefix="childhood" phase={phaseClock(frame,total)} palette={{colors:[palette.soft,...palette.balloon],paper:palette.background,background:palette.paper,grain:palette.ink}}/>
   <Garland palette={palette}/>
   {balloons.map((b,i)=>{
    const clock=phaseClock(frame,total);
